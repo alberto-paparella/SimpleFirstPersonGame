@@ -28,7 +28,7 @@
  * 
  *                  Important note: always rotate first and then translate.
  * 
- * Useful post used for reference:
+ * Useful post about setting a first person camera used for reference:
  *   https://thepentamollisproject.blogspot.com/2018/02/setting-up-first-person-camera-in.html
  * ------------------------------------------------------------------------------------------------
  */
