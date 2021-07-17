@@ -27,7 +27,7 @@ CC=gcc
 CFLAGS=-I$(IDIR)
 
 # Libraries used
-LIBS=-lglut -lGL -lGLU -lGLEW -lm
+LIBS=-lglut -lGLU -lGL -lGLEW -lm
 
 # Header files names
 _DEPS=readBMP.h shader.h

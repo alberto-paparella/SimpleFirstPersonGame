@@ -7,7 +7,7 @@
 // 32-bit color RGBA bitmap file (A value being set to 1).
 // Code adapted from :
 // https://github.com/slackmoehrle/Computer-Graphics-Through-OpenGL-2nd/blob/master/Chapter12/LoadTextures/getbmp.cpp
-BitMapFile *readBMP(char *filename)
+struct BitMapFile *readBMP(char *filename)
 {
     GLint offset, headerSize;
     GLuint padding, sizeScanline, sizeStorage;

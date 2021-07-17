@@ -32,14 +32,28 @@
  *   https://thepentamollisproject.blogspot.com/2018/02/setting-up-first-person-camera-in.html
  * ------------------------------------------------------------------------------------------------
  */
-
-/**
- */
-
-#include <GL/glut.h>
+#include <GL/glew.h>
+#include <GL/freeglut.h>
+#include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
-#include <stdio.h>
+
+#include "readBMP.h"
+
+/**
+ * Local storage for bmp image data.
+ */
+struct BitMapFile *image=NULL;
+
+/**
+ * File containing the bmp image.
+ */
+char *fileName = "grass.bmp";
+
+/** 
+ * Texture ID objects.
+ */
+static GLenum textureID[1];
 
 /**
  * Frame per seconds.
@@ -167,6 +181,46 @@ void keyboard_up(unsigned char key, int x, int y);
  */
 void init()
 {
+    GLenum glErr;
+
+    /**
+     * Initialize texture ID.
+     */
+    glGenTextures(1, textureID);
+
+    /**
+     * Activate texture object.
+     */
+    glBindTexture(GL_TEXTURE_2D, textureID[0]);
+
+    /**
+     * Specify image data for currently active texture object.
+     */
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->sizeX, image->sizeY, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, image->data);
+
+    /**
+     * Set texture parameters for wrapping.
+     */
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    /**
+     * Set texture parameters for filtering.
+     */
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    /**
+     * Specify how texture values combine with current surface color values.
+     */
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+    /**
+     * Turn on OpenGL texturing.
+     */
+    glEnable(GL_TEXTURE_2D);
+
     /**
      * Enable depth test.
      */
@@ -186,6 +240,15 @@ void init()
      * center the parameters should be width/2 and height/2 respectively.
 	 */
     glutWarpPointer(width/2, height/2);
+
+    /**
+     * ... it does not hurt to check that everything went OK.
+     */
+    if ((glErr=glGetError()) != 0)
+    {
+        printf("Errore = %d \n", glErr);
+        exit(-1);
+    }
 }
 
 /**
@@ -208,6 +271,28 @@ int main(int argc, char**argv)
     printf("# - W, A, S and D to move around       #\n");
     printf("# - ESC to close the application       #\n");
     printf("########################################\n");
+
+    /**
+     * Here we add support for GLEW.
+     */
+    GLenum err = glewInit();
+    if (GLEW_OK != err) {
+        printf("GLEW init failed: %s\n", glewGetErrorString(err));
+        exit(1);
+    } else {
+        printf("GLEW init success\n");
+    };
+
+    /**
+     * Read bitmap image.
+     */
+    image = readBMP(fileName);
+    if (image == NULL) {
+        printf("readBMP: Could not openfile: %s \n", fileName);
+        exit(1);
+    } else {
+        printf("File %s has size %d x %d \n", fileName, image->sizeX, image->sizeY);
+    }
 
     init();
     glutDisplayFunc(display);
@@ -252,25 +337,20 @@ int main(int argc, char**argv)
  */
 void draw()
 {
-    glEnable(GL_TEXTURE_2D);
-    GLuint texture;
-    glGenTextures(1,&texture);
+    /**
+     * Push initial state on the stack.
+     */
+    glPushMatrix();
 
-    unsigned char texture_data[2][2][4] =
-                    {
-                        0,0,0,255,  255,255,255,255,
-                        255,255,255,255,    0,0,0,255
-                    };
+    /**
+     * Clear color and depth buffer.
+     */
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glBindTexture(GL_TEXTURE_2D,texture);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,2,2,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_data);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                    GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                    GL_NEAREST);
+    /**
+     * Activate texture object.
+     */
+    glBindTexture(GL_TEXTURE_2D, textureID[0]); /* Bitmap image. */
 
     glBegin(GL_QUADS);
 
@@ -281,7 +361,15 @@ void draw()
 
     glEnd();
 
-    glDisable(GL_TEXTURE_2D);
+    /**
+     * Flush graphics objects immediately.
+     */
+    glFlush();
+
+    /**
+     * Pop initial state on the stack.
+     */
+    glPopMatrix();
 }
 
 void display()
@@ -427,12 +515,21 @@ void keyboard(unsigned char key,int x,int y)
      * We do the comparing for both, uppercase and lowercase. This allows the controls to work regardless of
      * the state of the Caps Lock.
      * Similarly, we will use the keyboard_up() function to set these values to false when the key is released.
-     * As always, the ESC button will terminate the execution of the program.
+     * As always, the ESC button will terminate the execution of the program (freeing memory, e.g. textures).
      */
     switch(key)
     {
         case 27:
-            // ESC
+            /**
+             * ESC
+             */
+            if (image != NULL)
+            {
+                /**
+                 * Free pixel data.
+                 */
+                free(image->data);
+            }
             exit(0);
             break;
         case 'W':
