@@ -10,11 +10,11 @@ It can be used, for example, in first person games or in CAD applications.
 # Development
 Final project for the Computer Graphics course (A.Y. 2020/2021) of the University of Ferrara.
 
-Teacher:  Antonino Casile
+```Teacher:  Antonino Casile
 
 Students: Alberto Paparella   Badge number: 144261
 
-          Martina Tenani      Badge number:
+          Martina Tenani      Badge number:```
 
 # About the project          
 There are two ways to move to a point in space.
