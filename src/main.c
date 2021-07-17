@@ -39,6 +39,7 @@
 #include <GL/glut.h>
 #include <stdbool.h>
 #include <math.h>
+#include <stdio.h>
 
 /**
  * Frame per seconds.
@@ -199,6 +200,14 @@ int main(int argc, char**argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(width, height);
     glutCreateWindow("Simple First Person Game");
+
+    printf("########################################\n");
+    printf("######  Simple First Person Game  ######\n");
+    printf("########################################\n");
+    printf("# - Use the mouse to rotate the camera #\n");
+    printf("# - W, A, S and D to move around       #\n");
+    printf("# - ESC to close the application       #\n");
+    printf("########################################\n");
 
     init();
     glutDisplayFunc(display);
