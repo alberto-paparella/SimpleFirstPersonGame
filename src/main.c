@@ -34,26 +34,86 @@
  */
 #include <GL/glew.h>
 #include <GL/freeglut.h>
+#include <cglm/cglm.h>
+#include <cglm/types-struct.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
 
 #include "readBMP.h"
+#include "shader.h"
+#include "shapes.h"
+#include "light.h"
+#include "material.h"
+
+static enum object {FLOOR} elements;
+static enum buffer {FLOOR_VERTICES} element_components;
+
+//light properties
+static const Light light0={
+   (vec4){0.0, 0.0, 0.0, 1.0},
+   (vec4){1.0, 1.0, 1.0, 1.0}, 
+   (vec4){1.0, 1.0, 1.0, 1.0},
+   (vec4){5.0, 0.0, 0.0, 0.0} //light coords
+};
+
+//global ambient
+static const vec4 globAmb ={
+   0.2, 0.2, 0.2, 1.0
+};
+
+//front and back material properties.
+static const Material floorMatrl =
+{
+   (vec4){1.0, 1.0, 1.0, 1.0},
+   (vec4){1.0, 1.0, 1.0, 1.0},
+   (vec4){1.0, 1.0, 1.0, 1.0},
+   (vec4){0.0, 0.0, 0.0, 1.0},
+   50.0f
+};
+
+// suqare data.
+static Vertex squVertices[4];
+static vec4 squColors = {1.0, 0.0, 0.0, 1.0};
+
+// Matrices
+static mat4 modelViewMat = GLM_MAT4_IDENTITY_INIT;
+static mat4 projMat = GLM_MAT4_IDENTITY_INIT;
+static mat3 normalMat = GLM_MAT3_IDENTITY_INIT;
+
+// OpenGL global variables
+static unsigned int
+programId,
+vertexShaderId,
+fragmentShaderId,
+modelViewMatLoc,
+normalMatLoc,
+projMatLoc,
+objectLoc,
+squColorLoc,
+floorTexLoc,
+buffer[1],
+vao[1],
+texture[1];
 
 /**
  * Local storage for bmp image data.
  */
-struct BitMapFile *image=NULL;
+struct BitMapFile *image[1];
 
 /**
  * File containing the bmp image.
  */
+<<<<<<< HEAD
 char *fileName = "grass.bmp"; 
 
 /** 
  * Texture ID objects.
  */
 static GLenum textureID[1];
+=======
+char *fileName = "textures/grass.bmp";
+>>>>>>> 4_3_conversion
 
 /**
  * Frame per seconds.
@@ -179,60 +239,107 @@ void keyboard_up(unsigned char key, int x, int y);
 /**
  * Init function, used to initialize the application.
  */
-void init()
+void init(void)
 {
     GLenum glErr;
 
-    /**
-     * Initialize texture ID.
-     */
-    glGenTextures(1, textureID);
+    // Create shader program executable.
+    vertexShaderId = setShader("vertex", "shaders/vertexShader.glsl");
+    fragmentShaderId = setShader("fragment", "shaders/fragmentShader.glsl");
+    
+    programId = glCreateProgram();
+    glAttachShader(programId, vertexShaderId);
+    glAttachShader(programId, fragmentShaderId);
+    glLinkProgram(programId);
+    glUseProgram(programId);
 
-    /**
-     * Activate texture object.
-     */
-    glBindTexture(GL_TEXTURE_2D, textureID[0]);
+    // Initialize elements in the scene
+    fillSqu(10, 10, squVertices);
 
-    /**
-     * Specify image data for currently active texture object.
-     */
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->sizeX, image->sizeY, 0,
-                 GL_RGBA, GL_UNSIGNED_BYTE, image->data);
+    // Create VAOs and VBOs...
+    glGenVertexArrays(1, vao);
+    glGenBuffers(1, buffer);
 
-    /**
-     * Set texture parameters for wrapping.
-     */
+    // ...and associate data with vertex shader.
+    glBindVertexArray(vao[FLOOR]);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer[FLOOR_VERTICES]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(squVertices), squVertices, GL_STATIC_DRAW);
+
+    //coords
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(squVertices[0]), 0);
+    glEnableVertexAttribArray(0);
+
+    //normals
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(squVertices[0]), (void*)sizeof(squVertices[0].coords));
+    glEnableVertexAttribArray(1);
+
+    //textures
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(squVertices[0]),(void*)(sizeof(squVertices[0].coords)+sizeof(squVertices[0].normal)));
+    glEnableVertexAttribArray(2);
+
+    // Obtain projection matrix uniform location and set value.
+    projMatLoc = glGetUniformLocation(programId, "projMat");
+
+    //obtain model view matrix
+    modelViewMatLoc = glGetUniformLocation(programId,"modelViewMat");
+
+    //obtain normal matrix
+    normalMatLoc = glGetUniformLocation(programId, "normalMat");
+
+/*     // Obtain color uniform locations and set values.
+    squColorLoc = glGetUniformLocation(programId, "squColor"); */
+
+    //uniform location of object
+    objectLoc = glGetUniformLocation(programId, "object");
+
+    //light parameters uniform locations
+    glUniform4fv(glGetUniformLocation(programId, "light0.ambCols"), 1, &light0.ambCols[0]);
+    glUniform4fv(glGetUniformLocation(programId, "light0.difCols"), 1, &light0.difCols[0]);
+    glUniform4fv(glGetUniformLocation(programId, "light0.specCols"), 1, &light0.specCols[0]);
+    glUniform4fv(glGetUniformLocation(programId, "light0.coords"), 1, &light0.coords[0]);
+
+    //global ambient parameter uniform location
+    glUniform4fv(glGetUniformLocation(programId, "globAmb"), 1, &globAmb[0]);
+
+    //material paramenters
+    glUniform4fv(glGetUniformLocation(programId, "floorMatrl.ambRefl"), 1, &floorMatrl.ambRefl[0]);
+    glUniform4fv(glGetUniformLocation(programId, "floorMatrl.difRefl"), 1, &floorMatrl.difRefl[0]);
+    glUniform4fv(glGetUniformLocation(programId, "floorMatrl.specRefl"), 1, &floorMatrl.specRefl[0]);
+    glUniform4fv(glGetUniformLocation(programId, "floorMatrl.emitCols"), 1, &floorMatrl.emitCols[0]);
+    glUniform1f(glGetUniformLocation(programId, "floorMatrl.shininess"), floorMatrl.shininess);
+
+    //load the image
+    image[0] = readBMP("./textures/grass.bmp");
+
+    // Create texture ids.
+    glGenTextures(1, texture);//create texture ids
+
+    //bind texture
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture[0]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image[0]->sizeX, image[0]->sizeY, 0, GL_RGBA, GL_UNSIGNED_BYTE, image[0]->data);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    /**
-     * Set texture parameters for filtering.
-     */
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    /**
-     * Specify how texture values combine with current surface color values.
-     */
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-
-    /**
-     * Turn on OpenGL texturing.
-     */
-    glEnable(GL_TEXTURE_2D);
+    floorTexLoc = glGetUniformLocation(programId, "floorTex");
+    glUniform1i(floorTexLoc, 0);
 
     /**
      * Enable depth test.
      */
     glEnable(GL_DEPTH_TEST);
+
     /**
      * Select clearing color: light blue as the sky.
      */
     glClearColor(0.6, 0.8, 0.9, 0.0);
+
     /**
      * Hide the cursor.
      */
 	glutSetCursor(GLUT_CURSOR_NONE);
+
 	/**
 	 * Confine the cursor to the center of the window when the application starts.
 	 * glWarpPointer(int x, int y) positions the mouse pointer in the position (x,y)
@@ -260,7 +367,13 @@ void init()
 int main(int argc, char**argv)
 {
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+
+    // set OpenGL version
+    glutInitContextVersion(4, 3);
+    glutInitContextProfile(GLUT_CORE_PROFILE);
+    glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
+
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInitWindowSize(width, height);
     glutCreateWindow("Simple First Person Game");
 
@@ -282,17 +395,6 @@ int main(int argc, char**argv)
     } else {
         printf("GLEW init success\n");
     };
-
-    /**
-     * Read bitmap image.
-     */
-    image = readBMP(fileName);
-    if (image == NULL) {
-        printf("readBMP: Could not openfile: %s \n", fileName);
-        exit(1);
-    } else {
-        printf("File %s has size %d x %d \n", fileName, image->sizeX, image->sizeY);
-    }
 
     init();
     glutDisplayFunc(display);
@@ -337,6 +439,8 @@ int main(int argc, char**argv)
  */
 void draw()
 {
+    mat3 TMP;
+    
     /**
      * Push initial state on the stack.
      */
@@ -347,20 +451,21 @@ void draw()
      */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    /**
-     * Activate texture object.
-     */
-    glBindTexture(GL_TEXTURE_2D, textureID[0]); /* Bitmap image. */
+/*     glm_mat4_identity(modelViewMat);
+    glm_lookat((vec3){0.0, 0.0, 3.0}, (vec3){0.0, 0.0, 0.0},(vec3){0.0, 1.0, 0.0}, modelViewMat);
+    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
 
-    glBegin(GL_QUADS);
+    // Calculate and update normal matrix.
+    glm_mat4_pick3(modelViewMat, TMP);
+    glm_mat3_inv(TMP, normalMat);
+    glm_mat3_transpose(normalMat);
+    glUniformMatrix3fv(normalMatLoc, 1, GL_FALSE, (GLfloat *)normalMat); */
 
-    glTexCoord2f(0.0,0.0);  glVertex3f(-50.0,-5.0,-50.0);
-    glTexCoord2f(25.0,0.0);  glVertex3f(50.0,-5.0,-50.0);
-    glTexCoord2f(25.0,25.0);  glVertex3f(50.0,-5.0,50.0);
-    glTexCoord2f(0.0,25.0);  glVertex3f(-50.0,-5.0,50.0);
-
-    glEnd();
-
+    //draw floor
+    glUniform1ui(objectLoc, FLOOR); // Update object name.
+    glBindVertexArray(vao[FLOOR]);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+   
     /**
      * Flush graphics objects immediately.
      */
@@ -528,7 +633,7 @@ void keyboard(unsigned char key,int x,int y)
                 /**
                  * Free pixel data.
                  */
-                free(image->data);
+                free(image[0]->data);
             }
             exit(0);
             break;

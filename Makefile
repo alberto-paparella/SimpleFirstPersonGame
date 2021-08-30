@@ -30,11 +30,11 @@ CFLAGS=-I$(IDIR)
 LIBS=-lglut -lGLU -lGL -lGLEW -lm
 
 # Header files names
-_DEPS=readBMP.h shader.h
+_DEPS=readBMP.h shader.h shapes.h vertex.h light.h material.h
 DEPS=$(patsubst %,$(IDIR)/%,$(_DEPS))
 
 # Source code files names
-_OBJ=readBMP.o shader.o main.o
+_OBJ=readBMP.o shader.o shapes.o main.o
 OBJ=$(patsubst %,$(ODIR)/%,$(_OBJ))
 
 # Here is where the magic happens
