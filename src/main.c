@@ -48,7 +48,7 @@ struct BitMapFile *image=NULL;
 /**
  * File containing the bmp image.
  */
-char *fileName = "grass.bmp";
+char *fileName = "grass.bmp"; 
 
 /** 
  * Texture ID objects.
