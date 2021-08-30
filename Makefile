@@ -34,7 +34,7 @@ _DEPS=readBMP.h shader.h
 DEPS=$(patsubst %,$(IDIR)/%,$(_DEPS))
 
 # Source code files names
-_OBJ=readBMP.o shader.o main.o
+_OBJ=readBMP.o shader.o main_4_3.o
 OBJ=$(patsubst %,$(ODIR)/%,$(_OBJ))
 
 # Here is where the magic happens
