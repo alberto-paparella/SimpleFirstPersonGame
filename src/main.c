@@ -104,16 +104,7 @@ struct BitMapFile *image[1];
 /**
  * File containing the bmp image.
  */
-<<<<<<< HEAD
-char *fileName = "grass.bmp"; 
-
-/** 
- * Texture ID objects.
- */
-static GLenum textureID[1];
-=======
 char *fileName = "textures/grass.bmp";
->>>>>>> 4_3_conversion
 
 /**
  * Frame per seconds.
@@ -278,16 +269,18 @@ void init(void)
     glEnableVertexAttribArray(2);
 
     // Obtain projection matrix uniform location and set value.
+    //Sono settate ma mai passate agli shaders qui
     projMatLoc = glGetUniformLocation(programId, "projMat");
+    // Calculate and update projection matrix.
+    glm_frustum(-50.0, 50.0, -50.0, 50.0, 1.0, 100.0,projMat);
+    //pass to vShader program
+    glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, (GLfloat *) projMat);
 
     //obtain model view matrix
     modelViewMatLoc = glGetUniformLocation(programId,"modelViewMat");
 
     //obtain normal matrix
     normalMatLoc = glGetUniformLocation(programId, "normalMat");
-
-/*     // Obtain color uniform locations and set values.
-    squColorLoc = glGetUniformLocation(programId, "squColor"); */
 
     //uniform location of object
     objectLoc = glGetUniformLocation(programId, "object");
@@ -451,10 +444,10 @@ void draw()
      */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-/*     glm_mat4_identity(modelViewMat);
-    glm_lookat((vec3){0.0, 0.0, 3.0}, (vec3){0.0, 0.0, 0.0},(vec3){0.0, 1.0, 0.0}, modelViewMat);
-    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
-
+    //glm_mat4_identity(modelViewMat);
+    //glm_lookat((vec3){0.0, 0.0, 10.0}, (vec3){0.0, 0.0, 0.0},(vec3){0.0, 1.0, 0.0}, modelViewMat);
+    //glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
+/*
     // Calculate and update normal matrix.
     glm_mat4_pick3(modelViewMat, TMP);
     glm_mat3_inv(TMP, normalMat);
@@ -605,10 +598,15 @@ void camera()
     if(pitch<=-60)
         pitch=-60;
 
-    glRotatef(-pitch,1.0,0.0,0.0);  /* Along X axis. */
-    glRotatef(-yaw,0.0,1.0,0.0);    /* Along Y axis. */
+    //glRotatef(-pitch,1.0,0.0,0.0);  /* Along X axis. */
+    glm_rotate(modelViewMat, -pitch, (vec3){1.0, 0.0, 0.0});
+    //glRotatef(-yaw,0.0,1.0,0.0);    /* Along Y axis. */
+    glm_rotate(modelViewMat, -yaw, (vec3){0.0, 1.0, 0.0});
 
-    glTranslatef(-camX,0.0,-camZ);
+    //glTranslatef(-camX,0.0,-camZ);
+    glm_translate(modelViewMat, (vec3){-camX, 0.0, -camZ});
+    //passing to the shaders
+    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
 }
 
 void keyboard(unsigned char key,int x,int y)

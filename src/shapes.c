@@ -126,9 +126,9 @@ void fillSquVertexArray(float l1, float l2, Vertex squVertices[4]){
     squVertices[0].texCoords.x = 0.0;
     squVertices[0].texCoords.y = 0.0;
 
-    squVertices[1].coords.x = 50.0;
+    squVertices[1].coords.x = -50.0;
     squVertices[1].coords.y = -5.0;
-    squVertices[1].coords.z = -50.0;
+    squVertices[1].coords.z = 50.0;
     squVertices[1].coords.w = 1.0;
     squVertices[1].normal.x = 0.0;
     squVertices[1].normal.y = 1.0;
@@ -146,9 +146,9 @@ void fillSquVertexArray(float l1, float l2, Vertex squVertices[4]){
     squVertices[2].texCoords.x = 25.0;
     squVertices[2].texCoords.y = 25.0;
 
-    squVertices[3].coords.x = -50.0;
+    squVertices[3].coords.x = 50.0;
     squVertices[3].coords.y = -5.0;
-    squVertices[3].coords.z = 50.0;
+    squVertices[3].coords.z = -50.0;
     squVertices[3].coords.w = 1.0;
     squVertices[3].normal.x = 0.0;
     squVertices[3].normal.y = 1.0;
