@@ -233,6 +233,11 @@ void keyboard_up(unsigned char key, int x, int y);
 void init(void)
 {
     GLenum glErr;
+    /**
+     * Enable depth test.
+     */
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
 
     // Create shader program executable.
     vertexShaderId = setShader("vertex", "shaders/vertexShader.glsl");
@@ -269,32 +274,30 @@ void init(void)
     glEnableVertexAttribArray(2);
 
     // Obtain projection matrix uniform location and set value.
-    //Sono settate ma mai passate agli shaders qui
     projMatLoc = glGetUniformLocation(programId, "projMat");
-    // Calculate and update projection matrix.
-    glm_frustum(-50.0, 50.0, -50.0, 50.0, 1.0, 100.0,projMat);
-    //pass to vShader program
-    glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, (GLfloat *) projMat);
+    //setting the viewing frustum
+    glm_perspective(60, 16.0/9.0, 1, 75, projMat);
+    glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, (GLfloat *)(projMat));
 
     //obtain model view matrix
     modelViewMatLoc = glGetUniformLocation(programId,"modelViewMat");
-
+    
     //obtain normal matrix
     normalMatLoc = glGetUniformLocation(programId, "normalMat");
 
     //uniform location of object
     objectLoc = glGetUniformLocation(programId, "object");
 
-    //light parameters uniform locations
+    //Passing light parameters uniform locations to vertex shader
     glUniform4fv(glGetUniformLocation(programId, "light0.ambCols"), 1, &light0.ambCols[0]);
     glUniform4fv(glGetUniformLocation(programId, "light0.difCols"), 1, &light0.difCols[0]);
     glUniform4fv(glGetUniformLocation(programId, "light0.specCols"), 1, &light0.specCols[0]);
     glUniform4fv(glGetUniformLocation(programId, "light0.coords"), 1, &light0.coords[0]);
 
-    //global ambient parameter uniform location
+    //Passing global ambient parameter uniform location to vertex shader
     glUniform4fv(glGetUniformLocation(programId, "globAmb"), 1, &globAmb[0]);
 
-    //material paramenters
+    //Passing material paramenters to vertex shader
     glUniform4fv(glGetUniformLocation(programId, "floorMatrl.ambRefl"), 1, &floorMatrl.ambRefl[0]);
     glUniform4fv(glGetUniformLocation(programId, "floorMatrl.difRefl"), 1, &floorMatrl.difRefl[0]);
     glUniform4fv(glGetUniformLocation(programId, "floorMatrl.specRefl"), 1, &floorMatrl.specRefl[0]);
@@ -315,13 +318,10 @@ void init(void)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    //Passing texture to Shaders
     floorTexLoc = glGetUniformLocation(programId, "floorTex");
     glUniform1i(floorTexLoc, 0);
-
-    /**
-     * Enable depth test.
-     */
-    glEnable(GL_DEPTH_TEST);
 
     /**
      * Select clearing color: light blue as the sky.
@@ -391,7 +391,7 @@ int main(int argc, char**argv)
 
     init();
     glutDisplayFunc(display);
-    glutReshapeFunc(reshape);
+    //glutReshapeFunc(reshape);
     glutTimerFunc(0,timer,0);
 
     /**
@@ -432,48 +432,28 @@ int main(int argc, char**argv)
  */
 void draw()
 {
-    mat3 TMP;
-    
-    /**
-     * Push initial state on the stack.
-     */
-    glPushMatrix();
-
-    /**
-     * Clear color and depth buffer.
-     */
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    //glm_mat4_identity(modelViewMat);
-    //glm_lookat((vec3){0.0, 0.0, 10.0}, (vec3){0.0, 0.0, 0.0},(vec3){0.0, 1.0, 0.0}, modelViewMat);
-    //glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
-/*
-    // Calculate and update normal matrix.
-    glm_mat4_pick3(modelViewMat, TMP);
-    glm_mat3_inv(TMP, normalMat);
-    glm_mat3_transpose(normalMat);
-    glUniformMatrix3fv(normalMatLoc, 1, GL_FALSE, (GLfloat *)normalMat); */
+    mat4 TMP;
+    //push to save the matrix
+    glm_mat4_copy(modelViewMat,TMP);
+    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
 
     //draw floor
-    glUniform1ui(objectLoc, FLOOR); // Update object name.
+    glUniform1ui(objectLoc, FLOOR); //Passing to shader
+    glEnableVertexAttribArray(0); //?
     glBindVertexArray(vao[FLOOR]);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-   
-    /**
-     * Flush graphics objects immediately.
-     */
-    glFlush();
 
-    /**
-     * Pop initial state on the stack.
-     */
-    glPopMatrix();
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); //Draw the vertices, once again how does this know which vertices to draw? (Does it always use the ones in GL_ARRAY_BUFFER)
+
+    glDisableVertexAttribArray(0); //?
+
+    //push identity matrix to reset
+    glm_mat4_identity(modelViewMat);
+    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
 }
 
 void display()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glLoadIdentity();
 
     /**
      * Here, we call the camera function, will be used to apply the rotation to the scene specified by passiveMotion. 
@@ -487,16 +467,18 @@ void display()
     draw();
 
     glutSwapBuffers();
+
 }
 
 void reshape(int w,int h)
 {
     glViewport(0,0,w,h);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(60,16.0/9.0,1,75);
-    glMatrixMode(GL_MODELVIEW);
 
+    glm_mat4_identity(projMat);
+    glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, (GLfloat *)(projMat));
+
+    glm_perspective(60, 16.0/9.0, 1, 75, projMat);
+    glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, (GLfloat *)(projMat));
 }
 
 void timer()
@@ -538,8 +520,8 @@ void passiveMotion(int x,int y)
      * To apply this rotation to the scene, we will use a separate function which will be called camera().
      * This function will be called before drawing, and will take care of positioning the camera.
      */
-    yaw+=(float)dev_x/10.0;
-    pitch+=(float)dev_y/10.0;
+    yaw+=(float)dev_x/5.0;
+    pitch+=(float)dev_y/5.0;
 }
 
 void camera()
@@ -569,25 +551,27 @@ void camera()
      * Similarly, add 180 for backward motion and subtract 90 for moving right.
      */
 
+    float radius = 5.0f;
+
     if(motion.Forward)
     {
-        camX += cos((yaw+90)*TO_RADIANS)/5.0;
-        camZ -= sin((yaw+90)*TO_RADIANS)/5.0;
+        camX += cos((yaw+90)*TO_RADIANS)/radius;
+        camZ -= sin((yaw+90)*TO_RADIANS)/radius;
     }
     if(motion.Backward)
     {
-        camX += cos((yaw+90+180)*TO_RADIANS)/5.0;
-        camZ -= sin((yaw+90+180)*TO_RADIANS)/5.0;
+        camX += cos((yaw+90+180)*TO_RADIANS)/radius;
+        camZ -= sin((yaw+90+180)*TO_RADIANS)/radius;
     }
     if(motion.Left)
     {
-        camX += cos((yaw+90+90)*TO_RADIANS)/5.0;
-        camZ -= sin((yaw+90+90)*TO_RADIANS)/5.0;
+        camX += cos((yaw+90+90)*TO_RADIANS)/radius;
+        camZ -= sin((yaw+90+90)*TO_RADIANS)/radius;
     }
     if(motion.Right)
     {
-        camX += cos((yaw+90-90)*TO_RADIANS)/5.0;
-        camZ -= sin((yaw+90-90)*TO_RADIANS)/5.0;
+        camX += cos((yaw+90-90)*TO_RADIANS)/radius;
+        camZ -= sin((yaw+90-90)*TO_RADIANS)/radius;
     }
 
     /**
@@ -598,6 +582,7 @@ void camera()
     if(pitch<=-60)
         pitch=-60;
 
+//la posiziona nella scena
     //glRotatef(-pitch,1.0,0.0,0.0);  /* Along X axis. */
     glm_rotate(modelViewMat, -pitch, (vec3){1.0, 0.0, 0.0});
     //glRotatef(-yaw,0.0,1.0,0.0);    /* Along Y axis. */

@@ -21,6 +21,8 @@ struct Light{
    vec4 coords;
 };
 
+//Qui ricevo quello che passo con:
+//glUniform4fv(glGetUniformLocation(programId, "light0.ambCols"), 1, &light0.ambCols[0]);
 uniform Light light0;
 uniform vec4 globAmb;
 
@@ -74,5 +76,6 @@ void main(void)
    backAmbDiffExport =  vec4(vec3(min(backEmit + backGlobAmb + backAmb + backDif, vec4(1.0))), 1.0);
    backSpecExport =  vec4(vec3(min(backSpec, vec4(1.0))), 1.0);
 
+   //gl_Position = projMat * view * modelViewMat * coords;
    gl_Position = projMat * modelViewMat * coords;
 }
