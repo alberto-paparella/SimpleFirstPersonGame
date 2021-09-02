@@ -49,6 +49,16 @@
 static enum object {FLOOR} elements;
 static enum buffer {FLOOR_VERTICES} element_components;
 
+//test
+// vertex coordinates and colors
+static Vertex squareVertices[4] =
+{
+    { 20.0, 20.0, 0.0, 1.0 },
+    { 80.0, 20.0, 0.0, 1.0 },
+    { 20.0, 80.0, 0.0, 1.0 },
+    { 80.0, 80.0, 0.0, 1.0 }
+};
+
 //light properties
 static const Light light0={
    (vec4){0.0, 0.0, 0.0, 1.0},
@@ -80,6 +90,7 @@ static vec4 squColors = {1.0, 0.0, 0.0, 1.0};
 static mat4 modelViewMat = GLM_MAT4_IDENTITY_INIT;
 static mat4 projMat = GLM_MAT4_IDENTITY_INIT;
 static mat3 normalMat = GLM_MAT3_IDENTITY_INIT;
+mat4 view = GLM_MAT4_IDENTITY_INIT;
 
 // OpenGL global variables
 static unsigned int
@@ -266,21 +277,27 @@ void init(void)
     glEnableVertexAttribArray(0);
 
     //normals
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(squVertices[0]), (void*)sizeof(squVertices[0].coords));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(squVertices[0]), (GLvoid*)sizeof(squVertices[0].coords));
     glEnableVertexAttribArray(1);
 
     //textures
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(squVertices[0]),(void*)(sizeof(squVertices[0].coords)+sizeof(squVertices[0].normal)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(squVertices[0]), (GLvoid*)(sizeof(squVertices[0].coords)+sizeof(squVertices[0].normal)));
     glEnableVertexAttribArray(2);
 
     // Obtain projection matrix uniform location and set value.
     projMatLoc = glGetUniformLocation(programId, "projMat");
     //setting the viewing frustum
-    glm_perspective(60, 16.0/9.0, 1, 75, projMat);
+    glm_frustum(-30.0, 30.0, -30.0, 30.0, 0.1, 75, projMat);
+    //glm_perspective(60, 16.0/9.0, 1, 75, projMat);
     glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, (GLfloat *)(projMat));
 
     //obtain model view matrix
+    glm_mat4_identity(modelViewMat);
     modelViewMatLoc = glGetUniformLocation(programId,"modelViewMat");
+    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
+
+    //pass identity mat to vertex shader
+    glUniformMatrix4fv(glGetUniformLocation(programId,"view"), 1, GL_FALSE, (GLfloat *)(view));
     
     //obtain normal matrix
     normalMatLoc = glGetUniformLocation(programId, "normalMat");
@@ -432,10 +449,10 @@ int main(int argc, char**argv)
  */
 void draw()
 {
-    mat4 TMP;
+/*     mat4 TMP;
     //push to save the matrix
     glm_mat4_copy(modelViewMat,TMP);
-    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
+    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat)); */
 
     //draw floor
     glUniform1ui(objectLoc, FLOOR); //Passing to shader
@@ -446,14 +463,18 @@ void draw()
 
     glDisableVertexAttribArray(0); //?
 
-    //push identity matrix to reset
-    glm_mat4_identity(modelViewMat);
-    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
 }
 
 void display()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    //save matrices
+    mat4 TMP_view;
+    mat4 TMP_modelView;
+
+    glm_mat4_copy(view, TMP_view);
+    glm_mat4_copy(modelViewMat, TMP_modelView);
 
     /**
      * Here, we call the camera function, will be used to apply the rotation to the scene specified by passiveMotion. 
@@ -467,6 +488,13 @@ void display()
     draw();
 
     glutSwapBuffers();
+
+    //popping matrices
+    glm_mat4_copy(TMP_view, view);
+    glm_mat4_copy(TMP_modelView, modelViewMat);
+
+    glUniformMatrix4fv(glGetUniformLocation(programId,"view"), 1, GL_FALSE, (GLfloat *)(view));
+    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
 
 }
 
@@ -581,17 +609,26 @@ void camera()
         pitch = 70;
     if(pitch<=-60)
         pitch=-60;
+    
+    //all transformations on view
+    glm_rotate(view, -pitch, (vec3){1.0, 0.0, 0.0});
+    glm_rotate(view, -yaw, (vec3){0.0, 1.0, 0.0});
+    glm_translate(view, (vec3){-camX, 0.0, -camZ});
+
+    //glm_lookat((vec3){-camX, 0.0, -camZ}, (vec3){0.0, 0.0, 0.0}, (vec3){0.0, 1.0, 0.0}, view);
+
+    glUniformMatrix4fv(glGetUniformLocation(programId,"view"), 1, GL_FALSE, (GLfloat *)(view));
 
 //la posiziona nella scena
     //glRotatef(-pitch,1.0,0.0,0.0);  /* Along X axis. */
-    glm_rotate(modelViewMat, -pitch, (vec3){1.0, 0.0, 0.0});
+    //glm_rotate(modelViewMat, -pitch, (vec3){1.0, 0.0, 0.0});
     //glRotatef(-yaw,0.0,1.0,0.0);    /* Along Y axis. */
-    glm_rotate(modelViewMat, -yaw, (vec3){0.0, 1.0, 0.0});
+    //glm_rotate(modelViewMat, -yaw, (vec3){0.0, 1.0, 0.0});
 
     //glTranslatef(-camX,0.0,-camZ);
-    glm_translate(modelViewMat, (vec3){-camX, 0.0, -camZ});
+    //glm_translate(modelViewMat, (vec3){-camX, 0.0, -camZ});
     //passing to the shaders
-    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
+    //glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
 }
 
 void keyboard(unsigned char key,int x,int y)
