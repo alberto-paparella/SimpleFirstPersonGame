@@ -7,7 +7,6 @@ layout(location=1) in vec3 squNormal;
 layout(location=2) in vec2 squTexCoords;
 
 uniform mat4 projMat;
-uniform mat4 view;
 uniform mat4 modelViewMat;
 uniform mat3 normalMat;
 uniform uint object;
@@ -77,5 +76,5 @@ void main(void)
    backAmbDiffExport =  vec4(vec3(min(backEmit + backGlobAmb + backAmb + backDif, vec4(1.0))), 1.0);
    backSpecExport =  vec4(vec3(min(backSpec, vec4(1.0))), 1.0);
 
-   gl_Position = projMat * view * modelViewMat * coords;
+   gl_Position = projMat * modelViewMat * coords;
 }

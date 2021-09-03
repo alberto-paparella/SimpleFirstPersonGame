@@ -1,5 +1,22 @@
 {
   "files.associations": {
-    "freeglut.h": "c"
+    "freeglut.h": "c",
+    "glew.h": "c",
+    "shapes.h": "c",
+    "light.h": "c",
+    "atomic": "c",
+    "*.tcc": "c",
+    "functional": "c",
+    "optional": "c",
+    "fstream": "c",
+    "istream": "c",
+    "numeric": "c",
+    "ostream": "c",
+    "sstream": "c",
+    "stdexcept": "c",
+    "streambuf": "c",
+    "type_traits": "c",
+    "typeinfo": "c",
+    "utility": "c"
   }
 }

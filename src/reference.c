@@ -34,78 +34,26 @@
  */
 #include <GL/glew.h>
 #include <GL/freeglut.h>
-#include <cglm/cglm.h>
-#include <cglm/types-struct.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
 
 #include "readBMP.h"
-#include "shader.h"
-#include "shapes.h"
-#include "light.h"
-#include "material.h"
-
-static enum object {FLOOR} elements;
-static enum buffer {FLOOR_VERTICES, FLOOR_INDICES} element_components;
-
-//light properties
-static const Light light0={
-   (vec4){0.0, 0.0, 0.0, 1.0},
-   (vec4){1.0, 1.0, 1.0, 1.0}, 
-   (vec4){1.0, 1.0, 1.0, 1.0},
-   (vec4){0.0, 10.0, 0.0, 0.0} //light coords
-};
-
-//global ambient
-static const vec4 globAmb ={
-   0.2, 0.2, 0.2, 1.0
-};
-
-//front and back material properties.
-static const Material floorMatrl =
-{
-   (vec4){1.0, 1.0, 1.0, 1.0},
-   (vec4){1.0, 1.0, 1.0, 1.0},
-   (vec4){1.0, 1.0, 1.0, 1.0},
-   (vec4){0.0, 0.0, 0.0, 1.0},
-   20.0f
-};
-
-// suqare data.
-static Vertex squVertices[4];
-static unsigned int squIndices[1][4];
-static int squCounts[1];
-static void* squOffsets[1];
-
-// Matrices
-static mat4 modelViewMat = GLM_MAT4_IDENTITY_INIT;
-static mat4 projMat = GLM_MAT4_IDENTITY_INIT;
-static mat3 normalMat = GLM_MAT3_IDENTITY_INIT;
-
-// OpenGL global variables
-static unsigned int
-programId,
-vertexShaderId,
-fragmentShaderId,
-modelViewMatLoc,
-normalMatLoc,
-projMatLoc,
-objectLoc,
-floorTexLoc,
-buffer[4],
-vao[2],
-texture[2];
 
 /**
  * Local storage for bmp image data.
  */
-struct BitMapFile *image[1];
+struct BitMapFile *image=NULL;
 
 /**
  * File containing the bmp image.
  */
-char *fileName = "textures/grass.bmp";
+char *fileName = "grass.bmp";
+
+/** 
+ * Texture ID objects.
+ */
+static GLenum textureID[1];
 
 /**
  * Frame per seconds.
@@ -231,107 +179,60 @@ void keyboard_up(unsigned char key, int x, int y);
 /**
  * Init function, used to initialize the application.
  */
-void init(void)
-{ 
+void init()
+{
     GLenum glErr;
 
-    // Create shader program executable.
-    vertexShaderId = setShader("vertex", "shaders/vertexShader.glsl");
-    fragmentShaderId = setShader("fragment", "shaders/fragmentShader.glsl");
-    
-    programId = glCreateProgram();
-    glAttachShader(programId, vertexShaderId);
-    glAttachShader(programId, fragmentShaderId);
-    glLinkProgram(programId);  
-    glUseProgram(programId);
+    /**
+     * Initialize texture ID.
+     */
+    glGenTextures(1, textureID);
 
-    // Initialize elements in the scene
-    fillSqu(squVertices, squIndices, squCounts, squOffsets);
+    /**
+     * Activate texture object.
+     */
+    glBindTexture(GL_TEXTURE_2D, textureID[0]);
 
-    // Create VAOs and VBOs...
-    glGenVertexArrays(1, vao);
-    glGenBuffers(2, buffer);
+    /**
+     * Specify image data for currently active texture object.
+     */
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->sizeX, image->sizeY, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, image->data);
 
-    // ...and associate data with vertex shader.
-    glBindVertexArray(vao[FLOOR]);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer[FLOOR_VERTICES]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(squVertices), squVertices, GL_STATIC_DRAW);
+    /**
+     * Set texture parameters for wrapping.
+     */
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer[FLOOR_INDICES]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(squIndices), squIndices, GL_STATIC_DRAW);
-
-    //coords
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(squVertices[0]), 0);
-    glEnableVertexAttribArray(0);
-
-    //normals
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(squVertices[0]), (GLvoid*)sizeof(squVertices[0].coords));
-    glEnableVertexAttribArray(1);
-
-    //textures
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(squVertices[0]), (GLvoid*)(sizeof(squVertices[0].coords)+sizeof(squVertices[0].normal)));
-    glEnableVertexAttribArray(2);
-
-    // Obtain projection matrix uniform location and set value.
-    projMatLoc = glGetUniformLocation(programId, "projMat");
-    //setting the viewing frustum
-    glm_frustum(-30.0, 30.0, -30.0, 30.0, 0.1, 75, projMat);
-    glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, (GLfloat *)projMat);
-    
-    //obtain model view matrix
-    modelViewMatLoc = glGetUniformLocation(programId,"modelViewMat");
-
-    //obtain normal matrix
-    normalMatLoc = glGetUniformLocation(programId, "normalMat");
-
-    //uniform location of object
-    objectLoc = glGetUniformLocation(programId, "object");
-
-    //Passing light parameters uniform locations to vertex shader
-    glUniform4fv(glGetUniformLocation(programId, "light0.ambCols"), 1, &light0.ambCols[0]);
-    glUniform4fv(glGetUniformLocation(programId, "light0.difCols"), 1, &light0.difCols[0]);
-    glUniform4fv(glGetUniformLocation(programId, "light0.specCols"), 1, &light0.specCols[0]);
-    glUniform4fv(glGetUniformLocation(programId, "light0.coords"), 1, &light0.coords[0]);
-
-    //Passing global ambient parameter uniform location to vertex shader
-    glUniform4fv(glGetUniformLocation(programId, "globAmb"), 1, &globAmb[0]);
-
-    //Passing material paramenters to vertex shader
-    glUniform4fv(glGetUniformLocation(programId, "floorMatrl.ambRefl"), 1, &floorMatrl.ambRefl[0]);
-    glUniform4fv(glGetUniformLocation(programId, "floorMatrl.difRefl"), 1, &floorMatrl.difRefl[0]);
-    glUniform4fv(glGetUniformLocation(programId, "floorMatrl.specRefl"), 1, &floorMatrl.specRefl[0]);
-    glUniform4fv(glGetUniformLocation(programId, "floorMatrl.emitCols"), 1, &floorMatrl.emitCols[0]);
-    glUniform1f(glGetUniformLocation(programId, "floorMatrl.shininess"), floorMatrl.shininess);
-
-    //load the image
-    image[0] = readBMP("./textures/grass.bmp");
-
-    // Create texture ids.
-    glGenTextures(1, texture);//create texture ids
-
-    //bind texture
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture[0]);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image[0]->sizeX, image[0]->sizeY, 0, GL_RGBA, GL_UNSIGNED_BYTE, image[0]->data);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    /**
+     * Set texture parameters for filtering.
+     */
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    //Passing texture to Shaders
-    floorTexLoc = glGetUniformLocation(programId, "floorTex");
-    glUniform1i(floorTexLoc, 0);
+    /**
+     * Specify how texture values combine with current surface color values.
+     */
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
+    /**
+     * Turn on OpenGL texturing.
+     */
+    glEnable(GL_TEXTURE_2D);
+
+    /**
+     * Enable depth test.
+     */
+    glEnable(GL_DEPTH_TEST);
     /**
      * Select clearing color: light blue as the sky.
      */
     glClearColor(0.6, 0.8, 0.9, 0.0);
-
     /**
      * Hide the cursor.
      */
 	glutSetCursor(GLUT_CURSOR_NONE);
-
 	/**
 	 * Confine the cursor to the center of the window when the application starts.
 	 * glWarpPointer(int x, int y) positions the mouse pointer in the position (x,y)
@@ -359,13 +260,7 @@ void init(void)
 int main(int argc, char**argv)
 {
     glutInit(&argc, argv);
-
-    // set OpenGL version
-    glutInitContextVersion(4, 3);
-    glutInitContextProfile(GLUT_CORE_PROFILE);
-    glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
-
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(width, height);
     glutCreateWindow("Simple First Person Game");
 
@@ -387,6 +282,17 @@ int main(int argc, char**argv)
     } else {
         printf("GLEW init success\n");
     };
+
+    /**
+     * Read bitmap image.
+     */
+    image = readBMP(fileName);
+    if (image == NULL) {
+        printf("readBMP: Could not openfile: %s \n", fileName);
+        exit(1);
+    } else {
+        printf("File %s has size %d x %d \n", fileName, image->sizeX, image->sizeY);
+    }
 
     init();
     glutDisplayFunc(display);
@@ -431,38 +337,45 @@ int main(int argc, char**argv)
  */
 void draw()
 {
-    mat4 TMP;
-    mat3 TMP_normal;
-    //push to save the matrix
-    glm_mat4_copy(modelViewMat,TMP);
-    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
-
-    //calculate and update normal matrix
-    glm_mat4_pick3(modelViewMat, TMP_normal);
-    glm_mat3_inv(TMP_normal, normalMat);
-    glm_mat3_transpose(normalMat);
-    glUniformMatrix3fv(normalMatLoc, 1, GL_FALSE, (GLfloat *)normalMat);
+    /**
+     * Push initial state on the stack.
+     */
+    glPushMatrix();
 
     /**
      * Clear color and depth buffer.
      */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //draw floor
-    glUniform1ui(objectLoc, FLOOR); //Passing to shader
-    glBindVertexArray(vao[FLOOR]);
+    /**
+     * Activate texture object.
+     */
+    glBindTexture(GL_TEXTURE_2D, textureID[0]); /* Bitmap image. */
 
-    glMultiDrawElements(GL_TRIANGLE_STRIP,squCounts,GL_UNSIGNED_INT,(const void**)squOffsets,1);
+    glBegin(GL_QUADS);
 
+    glTexCoord2f(0.0,0.0);  glVertex3f(-50.0,-5.0,-50.0);
+    glTexCoord2f(25.0,0.0);  glVertex3f(50.0,-5.0,-50.0);
+    glTexCoord2f(25.0,25.0);  glVertex3f(50.0,-5.0,50.0);
+    glTexCoord2f(0.0,25.0);  glVertex3f(-50.0,-5.0,50.0);
+
+    glEnd();
+
+    /**
+     * Flush graphics objects immediately.
+     */
     glFlush();
-    glm_mat4_copy(TMP, modelViewMat);
 
+    /**
+     * Pop initial state on the stack.
+     */
+    glPopMatrix();
 }
 
 void display()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glm_mat4_identity(modelViewMat);
+    glLoadIdentity();
 
     /**
      * Here, we call the camera function, will be used to apply the rotation to the scene specified by passiveMotion. 
@@ -476,16 +389,16 @@ void display()
     draw();
 
     glutSwapBuffers();
-
 }
 
 void reshape(int w,int h)
 {
     glViewport(0,0,w,h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(60,16.0/9.0,1,75);
+    glMatrixMode(GL_MODELVIEW);
 
-    glm_mat4_identity(projMat);
-    glm_perspective(1.0472, 16.0/9.0, 1, 75, projMat);
-    glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, (GLfloat *)(projMat));
 }
 
 void timer()
@@ -527,8 +440,8 @@ void passiveMotion(int x,int y)
      * To apply this rotation to the scene, we will use a separate function which will be called camera().
      * This function will be called before drawing, and will take care of positioning the camera.
      */
-    yaw+=(float)dev_x/5.0;
-    pitch+=(float)dev_y/5.0;
+    yaw+=(float)dev_x/10.0;
+    pitch+=(float)dev_y/10.0;
 }
 
 void camera()
@@ -558,27 +471,25 @@ void camera()
      * Similarly, add 180 for backward motion and subtract 90 for moving right.
      */
 
-    float radius = 5.0f;
-
     if(motion.Forward)
     {
-        camX += cos((yaw+90)*TO_RADIANS)/radius;
-        camZ -= sin((yaw+90)*TO_RADIANS)/radius;
+        camX += cos((yaw+90)*TO_RADIANS)/5.0;
+        camZ -= sin((yaw+90)*TO_RADIANS)/5.0;
     }
     if(motion.Backward)
     {
-        camX += cos((yaw+90+180)*TO_RADIANS)/radius;
-        camZ -= sin((yaw+90+180)*TO_RADIANS)/radius;
+        camX += cos((yaw+90+180)*TO_RADIANS)/5.0;
+        camZ -= sin((yaw+90+180)*TO_RADIANS)/5.0;
     }
     if(motion.Left)
     {
-        camX += cos((yaw+90+90)*TO_RADIANS)/radius;
-        camZ -= sin((yaw+90+90)*TO_RADIANS)/radius;
+        camX += cos((yaw+90+90)*TO_RADIANS)/5.0;
+        camZ -= sin((yaw+90+90)*TO_RADIANS)/5.0;
     }
     if(motion.Right)
     {
-        camX += cos((yaw+90-90)*TO_RADIANS)/radius;
-        camZ -= sin((yaw+90-90)*TO_RADIANS)/radius;
+        camX += cos((yaw+90-90)*TO_RADIANS)/5.0;
+        camZ -= sin((yaw+90-90)*TO_RADIANS)/5.0;
     }
 
     /**
@@ -588,12 +499,11 @@ void camera()
         pitch = 70;
     if(pitch<=-60)
         pitch=-60;
-    
-    //all transformations on view
-    glm_rotate(modelViewMat, ((-pitch)*TO_RADIANS), (vec3){1.0, 0.0, 0.0});
-    glm_rotate(modelViewMat, ((-yaw)*TO_RADIANS), (vec3){0.0, 1.0, 0.0});
-   
-    glm_translate(modelViewMat, (vec3){-camX, 0.0, -camZ});
+
+    glRotatef(-pitch,1.0,0.0,0.0);  /* Along X axis. */
+    glRotatef(-yaw,0.0,1.0,0.0);    /* Along Y axis. */
+
+    glTranslatef(-camX,0.0,-camZ);
 }
 
 void keyboard(unsigned char key,int x,int y)
@@ -618,7 +528,7 @@ void keyboard(unsigned char key,int x,int y)
                 /**
                  * Free pixel data.
                  */
-                free(image[0]->data);
+                free(image->data);
             }
             exit(0);
             break;
