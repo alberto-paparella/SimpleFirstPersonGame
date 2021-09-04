@@ -93,8 +93,8 @@ normalMatLoc,
 projMatLoc,
 objectLoc,
 floorTexLoc,
-buffer[4],
-vao[2],
+buffer[2],
+vao[1],
 texture[2];
 
 /**
@@ -235,24 +235,28 @@ void init(void)
 { 
     GLenum glErr;
 
-    // Create shader program executable.
+    /**
+     * Shaders setup
+     */
     vertexShaderId = setShader("vertex", "shaders/vertexShader.glsl");
     fragmentShaderId = setShader("fragment", "shaders/fragmentShader.glsl");
-    
     programId = glCreateProgram();
     glAttachShader(programId, vertexShaderId);
     glAttachShader(programId, fragmentShaderId);
     glLinkProgram(programId);  
     glUseProgram(programId);
 
-    // Initialize elements in the scene
+    /**
+     * Initializing elements in the scene
+     */
     fillSqu(squVertices, squIndices, squCounts, squOffsets);
 
-    // Create VAOs and VBOs...
+    /**
+     * Setting up VAO's and VBO's
+     */
     glGenVertexArrays(1, vao);
     glGenBuffers(2, buffer);
 
-    // ...and associate data with vertex shader.
     glBindVertexArray(vao[FLOOR]);
     glBindBuffer(GL_ARRAY_BUFFER, buffer[FLOOR_VERTICES]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(squVertices), squVertices, GL_STATIC_DRAW);
@@ -260,56 +264,74 @@ void init(void)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer[FLOOR_INDICES]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(squIndices), squIndices, GL_STATIC_DRAW);
 
-    //coords
+    /**
+     * Storing variables for shaders 
+     */
+    //Coordinates
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(squVertices[0]), 0);
     glEnableVertexAttribArray(0);
 
-    //normals
+    //Normals
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(squVertices[0]), (GLvoid*)sizeof(squVertices[0].coords));
     glEnableVertexAttribArray(1);
 
-    //textures
+    //Textures
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(squVertices[0]), (GLvoid*)(sizeof(squVertices[0].coords)+sizeof(squVertices[0].normal)));
     glEnableVertexAttribArray(2);
 
-    // Obtain projection matrix uniform location and set value.
+    /**
+     * Getting matrices and object locations
+    */
+    //Projection matrix
     projMatLoc = glGetUniformLocation(programId, "projMat");
     //setting the viewing frustum
     glm_frustum(-30.0, 30.0, -30.0, 30.0, 0.1, 75, projMat);
     glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, (GLfloat *)projMat);
     
-    //obtain model view matrix
+    //ModelView matrix
     modelViewMatLoc = glGetUniformLocation(programId,"modelViewMat");
 
-    //obtain normal matrix
+    //Normal matrix
     normalMatLoc = glGetUniformLocation(programId, "normalMat");
 
-    //uniform location of object
+    //object location
     objectLoc = glGetUniformLocation(programId, "object");
 
-    //Passing light parameters uniform locations to vertex shader
+    /**
+     * Passing light characteristics to the shader
+    */
     glUniform4fv(glGetUniformLocation(programId, "light0.ambCols"), 1, &light0.ambCols[0]);
     glUniform4fv(glGetUniformLocation(programId, "light0.difCols"), 1, &light0.difCols[0]);
     glUniform4fv(glGetUniformLocation(programId, "light0.specCols"), 1, &light0.specCols[0]);
     glUniform4fv(glGetUniformLocation(programId, "light0.coords"), 1, &light0.coords[0]);
 
-    //Passing global ambient parameter uniform location to vertex shader
+    /**
+     * Passing global ambient parameter uniform location to the shader
+    */
     glUniform4fv(glGetUniformLocation(programId, "globAmb"), 1, &globAmb[0]);
 
-    //Passing material paramenters to vertex shader
+    /**
+     * Passing material paramenters to the shader
+    */
     glUniform4fv(glGetUniformLocation(programId, "floorMatrl.ambRefl"), 1, &floorMatrl.ambRefl[0]);
     glUniform4fv(glGetUniformLocation(programId, "floorMatrl.difRefl"), 1, &floorMatrl.difRefl[0]);
     glUniform4fv(glGetUniformLocation(programId, "floorMatrl.specRefl"), 1, &floorMatrl.specRefl[0]);
     glUniform4fv(glGetUniformLocation(programId, "floorMatrl.emitCols"), 1, &floorMatrl.emitCols[0]);
     glUniform1f(glGetUniformLocation(programId, "floorMatrl.shininess"), floorMatrl.shininess);
 
-    //load the image
+    /**
+     * Loading the texture image
+    */
     image[0] = readBMP("./textures/grass.bmp");
 
-    // Create texture ids.
+    /**
+     * Creating the texture
+    */
     glGenTextures(1, texture);//create texture ids
 
-    //bind texture
+    /**
+     * Binding the texture
+    */
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture[0]);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image[0]->sizeX, image[0]->sizeY, 0, GL_RGBA, GL_UNSIGNED_BYTE, image[0]->data);
@@ -318,7 +340,9 @@ void init(void)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    //Passing texture to Shaders
+    /**
+     * Passing the texture to the shader
+    */
     floorTexLoc = glGetUniformLocation(programId, "floorTex");
     glUniform1i(floorTexLoc, 0);
 
@@ -360,7 +384,9 @@ int main(int argc, char**argv)
 {
     glutInit(&argc, argv);
 
-    // set OpenGL version
+    /**
+     * Setting OpenGL version
+    */
     glutInitContextVersion(4, 3);
     glutInitContextProfile(GLUT_CORE_PROFILE);
     glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
@@ -433,11 +459,16 @@ void draw()
 {
     mat4 TMP;
     mat3 TMP_normal;
-    //push to save the matrix
+
+    /**
+     * "Pushing" the matrix
+    */
     glm_mat4_copy(modelViewMat,TMP);
     glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
 
-    //calculate and update normal matrix
+    /**
+     * Calculate and update normal matrix
+    */
     glm_mat4_pick3(modelViewMat, TMP_normal);
     glm_mat3_inv(TMP_normal, normalMat);
     glm_mat3_transpose(normalMat);
@@ -448,13 +479,19 @@ void draw()
      */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //draw floor
+    /**
+     * Drawing the elements of the scene
+    */
     glUniform1ui(objectLoc, FLOOR); //Passing to shader
     glBindVertexArray(vao[FLOOR]);
 
     glMultiDrawElements(GL_TRIANGLE_STRIP,squCounts,GL_UNSIGNED_INT,(const void**)squOffsets,1);
 
     glFlush();
+
+    /**
+     * "Popping" the matrix
+    */
     glm_mat4_copy(TMP, modelViewMat);
 
 }
@@ -589,7 +626,9 @@ void camera()
     if(pitch<=-60)
         pitch=-60;
     
-    //all transformations on view
+    /**
+     * ModelView transformations
+    */
     glm_rotate(modelViewMat, ((-pitch)*TO_RADIANS), (vec3){1.0, 0.0, 0.0});
     glm_rotate(modelViewMat, ((-yaw)*TO_RADIANS), (vec3){0.0, 1.0, 0.0});
    

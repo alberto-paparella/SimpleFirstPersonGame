@@ -12,7 +12,7 @@
 
 #include "functions.h"
 
-void VAO_associate(unsigned int vao_arr, unsigned int buff_arr[2], Vertex int mem_start, int elements){
+void VAO_associate(unsigned int vao_arr, unsigned int buff_arr[2], Vertex vertexArr, int mem_start, int elements){
     // ...and associate data with vertex shader.
     glBindVertexArray(vao_arr);
     glBindBuffer(GL_ARRAY_BUFFER, buff_arr[0]);
