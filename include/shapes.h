@@ -6,11 +6,11 @@
 /**
  * Parallelepiped
 */
-void fillParVertexArray(float l1, float l2, float h, Vertex parVertices[8]);
-void fillParIndices(unsigned int parIndices[1][8]);
-void fillParCounts(int parCounts[8]);
-void fillParOffsets(void* parOffsets[8]);
-void fillPar(float l1, float l2, float h, Vertex parVertices[8], unsigned int parIndices[1][8], int parCounts[8], void* parOffsets[8]);
+void fillParVertexArray(Vertex parVertices[4*4]);
+void fillParIndices(unsigned int parIndices[4][4]);
+void fillParCounts(int parCounts[4]);
+void fillParOffsets(void* parOffsets[4]);
+void fillPar(Vertex parVertices[4*4], unsigned int parIndices[4][4], int parCounts[4], void* parOffsets[4]);
 
 /**
  * Square

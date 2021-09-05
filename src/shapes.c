@@ -101,34 +101,157 @@ void fillSqu(Vertex squVertices[4], unsigned int squIndices[1][4], int squCounts
  * Fills the arrays for coordinates, normals and texture-coordinates to generate a parallelepiped.
  * @return Nothing.
  */
-void fillParVertexArray(float l1, float l2, float h, Vertex parVertices[8]){
+void fillParVertexArray(Vertex parVertices[4*4]){ //vertici * 4 facce
     
-    //counters
-    int v;
+    //PRIMA FACCIA
+    parVertices[0].coords.x = 10.0;
+    parVertices[0].coords.y = 5.0;
+    parVertices[0].coords.z = 10.0;
+    parVertices[0].coords.w = 1.0;
+    parVertices[0].normal.x = 0.0;
+    parVertices[0].normal.y = 0.0;
+    parVertices[0].normal.z = 1.0;
 
-    float l = l1/2;
-    float startPos = 0.0;
-    for (v = 0; v < 8; v++) {
-        parVertices[v].coords.x = (v & 4) != 0 ? l : -l + startPos;
-        parVertices[v].coords.y = (v & 2) != 0 ? l : -l + startPos;
-        parVertices[v].coords.z = (v & 1) != 0 ? l : -l + startPos;
-        parVertices[v].coords.w = 1.0;
-    }
+    parVertices[1].coords.x = 10.0;
+    parVertices[1].coords.y = -5.0;
+    parVertices[1].coords.z = 10.0;
+    parVertices[1].coords.w = 1.0;
+    parVertices[1].normal.x = 0.0;
+    parVertices[1].normal.y = 0.0;
+    parVertices[1].normal.z = 1.0;
+
+    parVertices[2].coords.x = -10.0;
+    parVertices[2].coords.y = 5.0;
+    parVertices[2].coords.z = 10.0;
+    parVertices[2].coords.w = 1.0;
+    parVertices[2].normal.x = 0.0;
+    parVertices[2].normal.y = 0.0;
+    parVertices[2].normal.z = 1.0;
+
+    parVertices[3].coords.x = -10.0;
+    parVertices[3].coords.y = -5.0;
+    parVertices[3].coords.z = 10.0;
+    parVertices[3].coords.w = 1.0;
+    parVertices[3].normal.x = 0.0;
+    parVertices[3].normal.y = 0.0;
+    parVertices[3].normal.z = 1.0;
+
+    //SECONDA FACCIA
+    parVertices[4].coords.x = -10.0;
+    parVertices[4].coords.y = 5.0;
+    parVertices[4].coords.z = 10.0;
+    parVertices[4].coords.w = 1.0;
+    parVertices[4].normal.x = -1.0;
+    parVertices[4].normal.y = 0.0;
+    parVertices[4].normal.z = 0.0;
+
+    parVertices[5].coords.x = -10.0;
+    parVertices[5].coords.y = -5.0;
+    parVertices[5].coords.z = 10.0;
+    parVertices[5].coords.w = 1.0;
+    parVertices[5].normal.x = -1.0;
+    parVertices[5].normal.y = 0.0;
+    parVertices[5].normal.z = 0.0;
+
+    parVertices[6].coords.x = -10.0;
+    parVertices[6].coords.y = 5.0;
+    parVertices[6].coords.z = -10.0;
+    parVertices[6].coords.w = 1.0;
+    parVertices[6].normal.x = -1.0;
+    parVertices[6].normal.y = 0.0;
+    parVertices[6].normal.z = 0.0;
+
+    parVertices[7].coords.x = -10.0;
+    parVertices[7].coords.y = -5.0;
+    parVertices[7].coords.z = -10.0;
+    parVertices[7].coords.w = 1.0;
+    parVertices[7].normal.x = -1.0;
+    parVertices[7].normal.y = 0.0;
+    parVertices[7].normal.z = 0.0;
+
+    //TERZA FACCIA
+    parVertices[8].coords.x = -10.0;
+    parVertices[8].coords.y = 5.0;
+    parVertices[8].coords.z = -10.0;
+    parVertices[8].coords.w = 1.0;
+    parVertices[8].normal.x = 0.0;
+    parVertices[8].normal.y = 0.0;
+    parVertices[8].normal.z = -1.0;
+
+    parVertices[9].coords.x = -10.0;
+    parVertices[9].coords.y = -5.0;
+    parVertices[9].coords.z = -10.0;
+    parVertices[9].coords.w = 1.0;
+    parVertices[9].normal.x = 0.0;
+    parVertices[9].normal.y = 0.0;
+    parVertices[9].normal.z = -1.0;
+
+    parVertices[10].coords.x = 10.0;
+    parVertices[10].coords.y = 5.0;
+    parVertices[10].coords.z = -10.0;
+    parVertices[10].coords.w = 1.0;
+    parVertices[10].normal.x = 0.0;
+    parVertices[10].normal.y = 0.0;
+    parVertices[10].normal.z = -1.0;
+
+    parVertices[11].coords.x = 10.0;
+    parVertices[11].coords.y = -5.0;
+    parVertices[11].coords.z = -10.0;
+    parVertices[11].coords.w = 1.0;
+    parVertices[11].normal.x = 0.0;
+    parVertices[11].normal.y = 0.0;
+    parVertices[11].normal.z = -1.0;
+
+    //QUARTA FACCIA
+    parVertices[12].coords.x = 10.0;
+    parVertices[12].coords.y = 5.0;
+    parVertices[12].coords.z = -10.0;
+    parVertices[12].coords.w = 1.0;
+    parVertices[12].normal.x = 1.0;
+    parVertices[12].normal.y = 0.0;
+    parVertices[12].normal.z = 0.0;
+
+    parVertices[13].coords.x = 10.0;
+    parVertices[13].coords.y = -5.0;
+    parVertices[13].coords.z = -10.0;
+    parVertices[13].coords.w = 1.0;
+    parVertices[13].normal.x = 1.0;
+    parVertices[13].normal.y = 0.0;
+    parVertices[13].normal.z = 0.0;
+
+    parVertices[14].coords.x = 10.0;
+    parVertices[14].coords.y = 5.0;
+    parVertices[14].coords.z = 10.0;
+    parVertices[14].coords.w = 1.0;
+    parVertices[14].normal.x = 1.0;
+    parVertices[14].normal.y = 0.0;
+    parVertices[14].normal.z = 0.0;
+
+    parVertices[15].coords.x = 10.0;
+    parVertices[15].coords.y = -5.0;
+    parVertices[15].coords.z = 10.0;
+    parVertices[15].coords.w = 1.0;
+    parVertices[15].normal.x = 1.0;
+    parVertices[15].normal.y = 0.0;
+    parVertices[15].normal.z = 0.0;
 
 }
-void fillParIndices(unsigned int parIndices[1][8]){
-    for(int v = 0; v < 8; v++)
-    {
-        parIndices[1][v] = v;
+void fillParIndices(unsigned int parIndices[4][4]){
+    for(int v=0; v<4; v++)
+        for(int f=0; f<4; f++){
+            parIndices[v][f] = v*4+f;
+            parIndices[v][f+1] = (v+1)*4+f;
+        }
+}
+void fillParCounts(int parCounts[4]){ //Four triangle strips with 4 vertices each
+    for(int f=0; f<4; f++){
+        parCounts[f] = 4;
     }
 }
-void fillParCounts(int parCounts[8]){
-    for(int v = 0; v <8; v++) 
-        parCounts[v] = v;
-}
-void fillParOffsets(void* parOffsets[8]){
-    for(int v = 0; v < 8; v++) 
-      parOffsets[v] = (GLvoid*)(v*sizeof(unsigned int));
+void fillParOffsets(void* parOffsets[4]){
+     /*  parOffsets[v] = (GLvoid*)(v*sizeof(unsigned int)); */
+    for(int f = 0; f < 4; f++) 
+      parOffsets[f] = (GLvoid*)(4*f*sizeof(unsigned int));
 }
 
 /**
@@ -138,8 +261,8 @@ void fillParOffsets(void* parOffsets[8]){
  * @param h The height of the parallelepiped.
  * @param parVertices[8] The array that will contain the vertex coordinates data.
  */
-void fillPar(float l1, float l2, float h, Vertex parVertices[8], unsigned int parIndices[1][8], int parCounts[8], void* parOffsets[8]){
-    fillParVertexArray(l1, l2, h, parVertices);
+void fillPar(Vertex parVertices[4*4], unsigned int parIndices[4][4], int parCounts[4], void* parOffsets[4]){
+    fillParVertexArray(parVertices);
     fillParIndices(parIndices);
     fillParCounts(parCounts);
     fillParOffsets(parOffsets);

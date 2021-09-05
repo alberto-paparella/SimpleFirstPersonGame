@@ -46,10 +46,12 @@
 #include "light.h"
 #include "material.h"
 
-static enum object {FLOOR} elements;
-static enum buffer {FLOOR_VERTICES, FLOOR_INDICES} element_components;
+static enum object {FLOOR, WALLS} elements;
+static enum buffer {FLOOR_VERTICES, FLOOR_INDICES, WALLS_VERTICES, WALLS_INDICES} element_components;
 
-//light properties
+/**
+ * Light properties
+*/
 static const Light light0={
    (vec4){0.0, 0.0, 0.0, 1.0},
    (vec4){1.0, 1.0, 1.0, 1.0}, 
@@ -57,12 +59,16 @@ static const Light light0={
    (vec4){0.0, 10.0, 0.0, 0.0} //light coords
 };
 
-//global ambient
+/**
+ * Global ambient properties
+*/
 static const vec4 globAmb ={
    0.2, 0.2, 0.2, 1.0
 };
 
-//front and back material properties.
+/**
+ * Material properties
+*/
 static const Material floorMatrl =
 {
    (vec4){1.0, 1.0, 1.0, 1.0},
@@ -72,11 +78,22 @@ static const Material floorMatrl =
    20.0f
 };
 
-// suqare data.
+/**
+ * Storing floor data
+*/
 static Vertex squVertices[4];
 static unsigned int squIndices[1][4];
 static int squCounts[1];
 static void* squOffsets[1];
+
+/**
+ * Storing walls data
+*/
+static Vertex parVertices[4*4];
+static unsigned int parIndices[4][4];
+static int parCounts[4];
+static void* parOffsets[4];
+static vec4 wallsColors = {1.0, 0.0, 0.0, 1.0};
 
 // Matrices
 static mat4 modelViewMat = GLM_MAT4_IDENTITY_INIT;
@@ -93,8 +110,9 @@ normalMatLoc,
 projMatLoc,
 objectLoc,
 floorTexLoc,
-buffer[2],
-vao[1],
+wallsColorLoc,
+buffer[4],
+vao[2],
 texture[2];
 
 /**
@@ -235,6 +253,10 @@ void init(void)
 { 
     GLenum glErr;
 
+    //PROBLEMA CON SFARFALLAMENTO
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);  
+    
     /**
      * Shaders setup
      */
@@ -250,12 +272,13 @@ void init(void)
      * Initializing elements in the scene
      */
     fillSqu(squVertices, squIndices, squCounts, squOffsets);
+    fillPar(parVertices, parIndices, parCounts, parOffsets);
 
     /**
      * Setting up VAO's and VBO's
      */
-    glGenVertexArrays(1, vao);
-    glGenBuffers(2, buffer);
+    glGenVertexArrays(2, vao);
+    glGenBuffers(4, buffer);
 
     glBindVertexArray(vao[FLOOR]);
     glBindBuffer(GL_ARRAY_BUFFER, buffer[FLOOR_VERTICES]);
@@ -279,13 +302,36 @@ void init(void)
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(squVertices[0]), (GLvoid*)(sizeof(squVertices[0].coords)+sizeof(squVertices[0].normal)));
     glEnableVertexAttribArray(2);
 
+    //BINDING WALLS
+    glBindVertexArray(vao[WALLS]);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer[WALLS_VERTICES]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(parVertices), parVertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer[WALLS_INDICES]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(parIndices), parIndices, GL_STATIC_DRAW);
+
+    /**
+     * Storing variables for shaders 
+     */
+    //Coordinates
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(parVertices[0]), 0);
+    glEnableVertexAttribArray(3);
+
+    //Normals
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(parVertices[0]), (GLvoid*)sizeof(parVertices[0].coords));
+    glEnableVertexAttribArray(4);
+/*
+    //Textures
+    glVertexAttribPointer(5, 2, GL_FLOAT, GL_FALSE, sizeof(parVertices[0]), (GLvoid*)(sizeof(parVertices[0].coords)+sizeof(parVertices[0].normal)));
+    glEnableVertexAttribArray(5); */
+
     /**
      * Getting matrices and object locations
     */
     //Projection matrix
     projMatLoc = glGetUniformLocation(programId, "projMat");
     //setting the viewing frustum
-    glm_frustum(-30.0, 30.0, -30.0, 30.0, 0.1, 75, projMat);
+    glm_frustum(-30.0, 30.0, -30.0, 30.0, 0.1, 500, projMat);
     glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, (GLfloat *)projMat);
     
     //ModelView matrix
@@ -318,6 +364,10 @@ void init(void)
     glUniform4fv(glGetUniformLocation(programId, "floorMatrl.specRefl"), 1, &floorMatrl.specRefl[0]);
     glUniform4fv(glGetUniformLocation(programId, "floorMatrl.emitCols"), 1, &floorMatrl.emitCols[0]);
     glUniform1f(glGetUniformLocation(programId, "floorMatrl.shininess"), floorMatrl.shininess);
+
+    // Obtain color uniform locations and set values.
+    wallsColorLoc = glGetUniformLocation(programId, "wallsColor");
+    glUniform4fv(wallsColorLoc, 1, &wallsColors[0]);
 
     /**
      * Loading the texture image
@@ -467,6 +517,11 @@ void draw()
     glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
 
     /**
+     * Clear color and depth buffer.
+     */
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+     /**
      * Calculate and update normal matrix
     */
     glm_mat4_pick3(modelViewMat, TMP_normal);
@@ -475,17 +530,20 @@ void draw()
     glUniformMatrix3fv(normalMatLoc, 1, GL_FALSE, (GLfloat *)normalMat);
 
     /**
-     * Clear color and depth buffer.
-     */
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    /**
      * Drawing the elements of the scene
     */
     glUniform1ui(objectLoc, FLOOR); //Passing to shader
     glBindVertexArray(vao[FLOOR]);
 
     glMultiDrawElements(GL_TRIANGLE_STRIP,squCounts,GL_UNSIGNED_INT,(const void**)squOffsets,1);
+
+    glUniform1ui(objectLoc, WALLS); //Passing to shader
+    glBindVertexArray(vao[WALLS]);
+
+    glm_translate(modelViewMat, (vec3){0.0, 0.0, -50.0});
+    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
+
+    glMultiDrawElements(GL_TRIANGLE_STRIP, parCounts, GL_UNSIGNED_INT, (const void**)parOffsets, 4);
 
     glFlush();
 

@@ -1,17 +1,9 @@
 #version 430 core
 
-#define FLOOR 0
-#define WALLS 1
-
 layout(location=0) in vec4 squCoords;
 layout(location=1) in vec3 squNormal;
 layout(location=2) in vec2 squTexCoords;
 
-layout(location=3) in vec4 wallsCoords;
-layout(location=4) in vec3 wallsNormal;
-/*layout(location=5) in vec2 squTexCoords; */
-
-//they are global
 uniform mat4 projMat;
 uniform mat4 modelViewMat;
 uniform mat3 normalMat;
@@ -27,6 +19,8 @@ struct Light{
    vec4 coords;
 };
 
+//Qui ricevo quello che passo con:
+//glUniform4fv(glGetUniformLocation(programId, "light0.ambCols"), 1, &light0.ambCols[0]);
 uniform Light light0;
 uniform vec4 globAmb;
 
@@ -51,9 +45,6 @@ void main(void)
       coords = squCoords;
       normal = squNormal;
       texCoordsExport = squTexCoords;
-   }else if(object == WALLS){
-      coords = wallsCoords;
-      normal = wallsNormal;
    }
 
    normal = normalize(normalMat*normal);
