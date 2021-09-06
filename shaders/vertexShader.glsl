@@ -9,7 +9,7 @@ layout(location=2) in vec2 squTexCoords;
 
 layout(location=3) in vec4 wallsCoords;
 layout(location=4) in vec3 wallsNormal;
-/*layout(location=5) in vec2 squTexCoords; */
+layout(location=5) in vec2 wallsTexCoords;
 
 //they are global
 uniform mat4 projMat;
@@ -54,6 +54,7 @@ void main(void)
    }else if(object == WALLS){
       coords = wallsCoords;
       normal = wallsNormal;
+      texCoordsExport = wallsTexCoords;
    }
 
    normal = normalize(normalMat*normal);

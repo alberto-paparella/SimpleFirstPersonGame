@@ -93,6 +93,7 @@ static Vertex parVertices[4*4];
 static unsigned int parIndices[4][4];
 static int parCounts[4];
 static void* parOffsets[4];
+
 static vec4 wallsColors = {1.0, 0.0, 0.0, 1.0};
 
 // Matrices
@@ -110,7 +111,7 @@ normalMatLoc,
 projMatLoc,
 objectLoc,
 floorTexLoc,
-wallsColorLoc,
+wallTexLoc,
 buffer[4],
 vao[2],
 texture[2];
@@ -118,7 +119,7 @@ texture[2];
 /**
  * Local storage for bmp image data.
  */
-struct BitMapFile *image[1];
+struct BitMapFile *image[2];
 
 /**
  * File containing the bmp image.
@@ -278,6 +279,7 @@ void init(void)
      * Setting up VAO's and VBO's
      */
     glGenVertexArrays(2, vao);
+
     glGenBuffers(4, buffer);
 
     glBindVertexArray(vao[FLOOR]);
@@ -320,10 +322,10 @@ void init(void)
     //Normals
     glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(parVertices[0]), (GLvoid*)sizeof(parVertices[0].coords));
     glEnableVertexAttribArray(4);
-/*
+
     //Textures
     glVertexAttribPointer(5, 2, GL_FLOAT, GL_FALSE, sizeof(parVertices[0]), (GLvoid*)(sizeof(parVertices[0].coords)+sizeof(parVertices[0].normal)));
-    glEnableVertexAttribArray(5); */
+    glEnableVertexAttribArray(5); 
 
     /**
      * Getting matrices and object locations
@@ -365,22 +367,19 @@ void init(void)
     glUniform4fv(glGetUniformLocation(programId, "floorMatrl.emitCols"), 1, &floorMatrl.emitCols[0]);
     glUniform1f(glGetUniformLocation(programId, "floorMatrl.shininess"), floorMatrl.shininess);
 
-    // Obtain color uniform locations and set values.
-    wallsColorLoc = glGetUniformLocation(programId, "wallsColor");
-    glUniform4fv(wallsColorLoc, 1, &wallsColors[0]);
-
     /**
      * Loading the texture image
     */
-    image[0] = readBMP("./textures/grass.bmp");
+    image[0] = readBMP("./textures/wild_grass.bmp");
+    image[1] = readBMP("./textures/bricks.bmp");
 
     /**
      * Creating the texture
     */
-    glGenTextures(1, texture);//create texture ids
+    glGenTextures(2, texture);//create texture ids
 
     /**
-     * Binding the texture
+     * Binding the texture of the floor
     */
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture[0]);
@@ -395,6 +394,25 @@ void init(void)
     */
     floorTexLoc = glGetUniformLocation(programId, "floorTex");
     glUniform1i(floorTexLoc, 0);
+
+
+    /**
+     * Binding the texture of the wall
+    */
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texture[1]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image[1]->sizeX, image[1]->sizeY, 0, GL_RGBA, GL_UNSIGNED_BYTE, image[1]->data);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    /**
+     * Passing the texture to the shader
+    */
+    wallTexLoc = glGetUniformLocation(programId, "wallsTex");
+    glUniform1i(wallTexLoc, 1);
+
 
     /**
      * Select clearing color: light blue as the sky.

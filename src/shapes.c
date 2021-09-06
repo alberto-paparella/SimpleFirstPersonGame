@@ -42,7 +42,7 @@ void fillSquVertexArray(Vertex squVertices[4]){
     squVertices[1].normal.x = 0.0;
     squVertices[1].normal.y = 1.0;
     squVertices[1].normal.z = 0.0;
-    squVertices[1].texCoords.x = 100.0;
+    squVertices[1].texCoords.x = 10.0;
     squVertices[1].texCoords.y = 0.0;
 
     squVertices[2].coords.x = 200.0;
@@ -52,8 +52,8 @@ void fillSquVertexArray(Vertex squVertices[4]){
     squVertices[2].normal.x = 0.0;
     squVertices[2].normal.y = 1.0;
     squVertices[2].normal.z = 0.0;
-    squVertices[2].texCoords.x = 100.0;
-    squVertices[2].texCoords.y = 100.0;
+    squVertices[2].texCoords.x = 10.0;
+    squVertices[2].texCoords.y = 10.0;
 
     squVertices[3].coords.x = -200.0;
     squVertices[3].coords.y = -5.0;
@@ -63,7 +63,7 @@ void fillSquVertexArray(Vertex squVertices[4]){
     squVertices[3].normal.y = 1.0;
     squVertices[3].normal.z = 0.0;
     squVertices[3].texCoords.x = 0.0;
-    squVertices[3].texCoords.y = 100.0;
+    squVertices[3].texCoords.y = 10.0;
 
 }
 
@@ -111,6 +111,8 @@ void fillParVertexArray(Vertex parVertices[4*4]){ //vertici * 4 facce
     parVertices[0].normal.x = 0.0;
     parVertices[0].normal.y = 0.0;
     parVertices[0].normal.z = 1.0;
+    parVertices[0].texCoords.x = 2.0;
+    parVertices[0].texCoords.y = 0.0;
 
     parVertices[1].coords.x = 10.0;
     parVertices[1].coords.y = -5.0;
@@ -119,6 +121,8 @@ void fillParVertexArray(Vertex parVertices[4*4]){ //vertici * 4 facce
     parVertices[1].normal.x = 0.0;
     parVertices[1].normal.y = 0.0;
     parVertices[1].normal.z = 1.0;
+    parVertices[1].texCoords.x = 2.0;
+    parVertices[1].texCoords.y = 2.0;
 
     parVertices[2].coords.x = -10.0;
     parVertices[2].coords.y = 5.0;
@@ -127,6 +131,8 @@ void fillParVertexArray(Vertex parVertices[4*4]){ //vertici * 4 facce
     parVertices[2].normal.x = 0.0;
     parVertices[2].normal.y = 0.0;
     parVertices[2].normal.z = 1.0;
+    parVertices[2].texCoords.x = 0.0;
+    parVertices[2].texCoords.y = 0.0;
 
     parVertices[3].coords.x = -10.0;
     parVertices[3].coords.y = -5.0;
@@ -135,6 +141,8 @@ void fillParVertexArray(Vertex parVertices[4*4]){ //vertici * 4 facce
     parVertices[3].normal.x = 0.0;
     parVertices[3].normal.y = 0.0;
     parVertices[3].normal.z = 1.0;
+    parVertices[3].texCoords.x = 0.0;
+    parVertices[3].texCoords.y = 2.0;
 
     //SECONDA FACCIA
     parVertices[4].coords.x = -10.0;
@@ -144,6 +152,8 @@ void fillParVertexArray(Vertex parVertices[4*4]){ //vertici * 4 facce
     parVertices[4].normal.x = -1.0;
     parVertices[4].normal.y = 0.0;
     parVertices[4].normal.z = 0.0;
+    parVertices[4].texCoords.x = 2.0;
+    parVertices[4].texCoords.y = 0.0;
 
     parVertices[5].coords.x = -10.0;
     parVertices[5].coords.y = -5.0;
@@ -152,6 +162,8 @@ void fillParVertexArray(Vertex parVertices[4*4]){ //vertici * 4 facce
     parVertices[5].normal.x = -1.0;
     parVertices[5].normal.y = 0.0;
     parVertices[5].normal.z = 0.0;
+    parVertices[5].texCoords.x = 2.0;
+    parVertices[5].texCoords.y = 2.0;
 
     parVertices[6].coords.x = -10.0;
     parVertices[6].coords.y = 5.0;
@@ -160,6 +172,8 @@ void fillParVertexArray(Vertex parVertices[4*4]){ //vertici * 4 facce
     parVertices[6].normal.x = -1.0;
     parVertices[6].normal.y = 0.0;
     parVertices[6].normal.z = 0.0;
+    parVertices[6].texCoords.x = 0.0;
+    parVertices[6].texCoords.y = 0.0;
 
     parVertices[7].coords.x = -10.0;
     parVertices[7].coords.y = -5.0;
@@ -168,6 +182,8 @@ void fillParVertexArray(Vertex parVertices[4*4]){ //vertici * 4 facce
     parVertices[7].normal.x = -1.0;
     parVertices[7].normal.y = 0.0;
     parVertices[7].normal.z = 0.0;
+    parVertices[7].texCoords.x = 0.0;
+    parVertices[7].texCoords.y = 2.0;
 
     //TERZA FACCIA
     parVertices[8].coords.x = -10.0;
@@ -177,6 +193,8 @@ void fillParVertexArray(Vertex parVertices[4*4]){ //vertici * 4 facce
     parVertices[8].normal.x = 0.0;
     parVertices[8].normal.y = 0.0;
     parVertices[8].normal.z = -1.0;
+    parVertices[8].texCoords.x = 2.0;
+    parVertices[8].texCoords.y = 0.0;
 
     parVertices[9].coords.x = -10.0;
     parVertices[9].coords.y = -5.0;
@@ -185,6 +203,8 @@ void fillParVertexArray(Vertex parVertices[4*4]){ //vertici * 4 facce
     parVertices[9].normal.x = 0.0;
     parVertices[9].normal.y = 0.0;
     parVertices[9].normal.z = -1.0;
+    parVertices[9].texCoords.x = 2.0;
+    parVertices[9].texCoords.y = 2.0;
 
     parVertices[10].coords.x = 10.0;
     parVertices[10].coords.y = 5.0;
@@ -193,6 +213,8 @@ void fillParVertexArray(Vertex parVertices[4*4]){ //vertici * 4 facce
     parVertices[10].normal.x = 0.0;
     parVertices[10].normal.y = 0.0;
     parVertices[10].normal.z = -1.0;
+    parVertices[10].texCoords.x = 0.0;
+    parVertices[10].texCoords.y = 0.0;
 
     parVertices[11].coords.x = 10.0;
     parVertices[11].coords.y = -5.0;
@@ -201,6 +223,8 @@ void fillParVertexArray(Vertex parVertices[4*4]){ //vertici * 4 facce
     parVertices[11].normal.x = 0.0;
     parVertices[11].normal.y = 0.0;
     parVertices[11].normal.z = -1.0;
+    parVertices[11].texCoords.x = 0.0;
+    parVertices[11].texCoords.y = 2.0;
 
     //QUARTA FACCIA
     parVertices[12].coords.x = 10.0;
@@ -210,6 +234,8 @@ void fillParVertexArray(Vertex parVertices[4*4]){ //vertici * 4 facce
     parVertices[12].normal.x = 1.0;
     parVertices[12].normal.y = 0.0;
     parVertices[12].normal.z = 0.0;
+    parVertices[12].texCoords.x = 2.0;
+    parVertices[12].texCoords.y = 0.0;
 
     parVertices[13].coords.x = 10.0;
     parVertices[13].coords.y = -5.0;
@@ -218,6 +244,8 @@ void fillParVertexArray(Vertex parVertices[4*4]){ //vertici * 4 facce
     parVertices[13].normal.x = 1.0;
     parVertices[13].normal.y = 0.0;
     parVertices[13].normal.z = 0.0;
+    parVertices[13].texCoords.x = 2.0;
+    parVertices[13].texCoords.y = 2.0;
 
     parVertices[14].coords.x = 10.0;
     parVertices[14].coords.y = 5.0;
@@ -226,6 +254,8 @@ void fillParVertexArray(Vertex parVertices[4*4]){ //vertici * 4 facce
     parVertices[14].normal.x = 1.0;
     parVertices[14].normal.y = 0.0;
     parVertices[14].normal.z = 0.0;
+    parVertices[14].texCoords.x = 0.0;
+    parVertices[14].texCoords.y = 0.0;
 
     parVertices[15].coords.x = 10.0;
     parVertices[15].coords.y = -5.0;
@@ -234,7 +264,8 @@ void fillParVertexArray(Vertex parVertices[4*4]){ //vertici * 4 facce
     parVertices[15].normal.x = 1.0;
     parVertices[15].normal.y = 0.0;
     parVertices[15].normal.z = 0.0;
-
+    parVertices[15].texCoords.x = 0.0;
+    parVertices[15].texCoords.y = 2.0;
 }
 void fillParIndices(unsigned int parIndices[4][4]){
     for(int v=0; v<4; v++)

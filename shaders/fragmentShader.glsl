@@ -3,8 +3,6 @@
 #define FLOOR 0
 #define WALLS 1
 
-uniform vec4 wallsColor;
-
 //material properties
 in vec4 frontAmbDiffExport, frontSpecExport, backAmbDiffExport, backSpecExport;
 //texture
@@ -12,6 +10,7 @@ in vec2 texCoordsExport;
 
 // samplers for the textures
 uniform sampler2D floorTex;
+uniform sampler2D wallsTex;
 
 uniform uint object;
 uniform vec4 sphColor;
@@ -25,7 +24,8 @@ void main(void)
       texColor = texture(floorTex, texCoordsExport);
       colorsOut = frontAmbDiffExport * texColor + frontSpecExport;
    }else if (object == WALLS){
-      colorsOut = frontAmbDiffExport * wallsColor + frontSpecExport;
+      texColor = texture(wallsTex, texCoordsExport);
+      colorsOut = frontAmbDiffExport * texColor + frontSpecExport;
    }
 
 }
