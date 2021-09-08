@@ -17,6 +17,8 @@
     "streambuf": "c",
     "type_traits": "c",
     "typeinfo": "c",
-    "utility": "c"
+    "utility": "c",
+    "stdbool.h": "c",
+    "random": "c"
   }
 }

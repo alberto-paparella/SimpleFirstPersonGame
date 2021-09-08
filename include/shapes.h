@@ -21,4 +21,13 @@ void fillSquCounts(int squCounts[1]);
 void fillSquOffsets(void* squOffsets[1]); 
 void fillSqu(Vertex squVertices[4], unsigned int squIndices[1][4], int squCounts[1], void* squOffsets[1]);
 
+/**
+ * Square
+*/
+void fillWallVertexArray(float X, float Y, Vertex squVertices[4]);
+void fillWallIndices(unsigned int squIndices[1][4]);
+void fillWallCounts(int squCounts[1]);
+void fillWallOffsets(void* squOffsets[1]); 
+void fillWall(float X, float Y, Vertex squVertices[4], unsigned int squIndices[1][4], int squCounts[1], void* squOffsets[1]);
+
 #endif

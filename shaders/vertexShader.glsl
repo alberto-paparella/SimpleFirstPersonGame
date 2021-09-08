@@ -1,15 +1,8 @@
 #version 430 core
 
-#define FLOOR 0
-#define WALLS 1
-
-layout(location=0) in vec4 squCoords;
-layout(location=1) in vec3 squNormal;
-layout(location=2) in vec2 squTexCoords;
-
-layout(location=3) in vec4 wallsCoords;
-layout(location=4) in vec3 wallsNormal;
-layout(location=5) in vec2 wallsTexCoords;
+layout(location=0) in vec4 objCoords;
+layout(location=1) in vec3 objNormals;
+layout(location=2) in vec2 objTexCoords;
 
 //they are global
 uniform mat4 projMat;
@@ -47,15 +40,10 @@ vec3 normal, lightDirection, eyeDirection, halfway;
 void main(void)
 {
    //the object we are plotting
-   if(object == FLOOR){
-      coords = squCoords;
-      normal = squNormal;
-      texCoordsExport = squTexCoords;
-   }else if(object == WALLS){
-      coords = wallsCoords;
-      normal = wallsNormal;
-      texCoordsExport = wallsTexCoords;
-   }
+
+      coords = objCoords;
+      normal = objNormals;
+      texCoordsExport = objTexCoords;
 
    normal = normalize(normalMat*normal);
 

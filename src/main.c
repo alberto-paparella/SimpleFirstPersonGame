@@ -45,9 +45,10 @@
 #include "shapes.h"
 #include "light.h"
 #include "material.h"
+#include "object.h"
 
-static enum object {FLOOR, WALLS} elements;
-static enum buffer {FLOOR_VERTICES, FLOOR_INDICES, WALLS_VERTICES, WALLS_INDICES} element_components;
+static enum scene_element {FLOOR, WALLS} elements;
+static enum scene_element_components {FLOOR_VERTICES, FLOOR_INDICES, WALLS_VERTICES, WALLS_INDICES} element_components;
 
 /**
  * Light properties
@@ -81,6 +82,8 @@ static const Material floorMatrl =
 /**
  * Storing floor data
 */
+//TO-DO - mi servono una serie di parametri per poter implementare una collision detection...Volevo provare a 
+//Fare delle strutture simil oggetti...
 static Vertex squVertices[4];
 static unsigned int squIndices[1][4];
 static int squCounts[1];
@@ -93,8 +96,19 @@ static Vertex parVertices[4*4];
 static unsigned int parIndices[4][4];
 static int parCounts[4];
 static void* parOffsets[4];
+CollisionBox CB1={  //questa deve seguire il cubo
+    (vec3){0.0, 0.0, -50.0}, //Posizione dell'origine
+    20.0f,  //distanza delle x dall'origine
+    20.0f,  //distanza delle y dall'origine
+    20.0f   //distanza delle z dall'origine
+};
 
-static vec4 wallsColors = {1.0, 0.0, 0.0, 1.0};
+CollisionBox Player={   //Collision box per il giocatore - Questa deve restare ferma nel mondo
+    (vec3){0.0, 0.0, 0.0},
+    5.0f,
+    5.0f,
+    5.0f
+};
 
 // Matrices
 static mat4 modelViewMat = GLM_MAT4_IDENTITY_INIT;
@@ -247,6 +261,8 @@ void keyboard(unsigned char key, int x, int y);
  */
 void keyboard_up(unsigned char key, int x, int y);
 
+bool checkCollision(CollisionBox Player, CollisionBox CB1);
+
 /**
  * Init function, used to initialize the application.
  */
@@ -304,36 +320,13 @@ void init(void)
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(squVertices[0]), (GLvoid*)(sizeof(squVertices[0].coords)+sizeof(squVertices[0].normal)));
     glEnableVertexAttribArray(2);
 
-    //BINDING WALLS
-    glBindVertexArray(vao[WALLS]);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer[WALLS_VERTICES]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(parVertices), parVertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer[WALLS_INDICES]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(parIndices), parIndices, GL_STATIC_DRAW);
-
-    /**
-     * Storing variables for shaders 
-     */
-    //Coordinates
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(parVertices[0]), 0);
-    glEnableVertexAttribArray(3);
-
-    //Normals
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(parVertices[0]), (GLvoid*)sizeof(parVertices[0].coords));
-    glEnableVertexAttribArray(4);
-
-    //Textures
-    glVertexAttribPointer(5, 2, GL_FLOAT, GL_FALSE, sizeof(parVertices[0]), (GLvoid*)(sizeof(parVertices[0].coords)+sizeof(parVertices[0].normal)));
-    glEnableVertexAttribArray(5); 
-
     /**
      * Getting matrices and object locations
     */
     //Projection matrix
     projMatLoc = glGetUniformLocation(programId, "projMat");
     //setting the viewing frustum
-    glm_frustum(-30.0, 30.0, -30.0, 30.0, 0.1, 500, projMat);
+    glm_frustum(-30.0, 30.0, -30.0, 30.0, 0.1, 10, projMat);
     glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, (GLfloat *)projMat);
     
     //ModelView matrix
@@ -386,15 +379,21 @@ void init(void)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image[0]->sizeX, image[0]->sizeY, 0, GL_RGBA, GL_UNSIGNED_BYTE, image[0]->data);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    //TODO-PROVA A IMPLEMENTARE MIP MAPS PER RISOLVERE SFARFALLIO
+/* 
+    glActiveTexture(GL_TEXTURE0);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); */
 
     /**
      * Passing the texture to the shader
     */
     floorTexLoc = glGetUniformLocation(programId, "floorTex");
     glUniform1i(floorTexLoc, 0);
-
 
     /**
      * Binding the texture of the wall
@@ -410,9 +409,7 @@ void init(void)
     /**
      * Passing the texture to the shader
     */
-    wallTexLoc = glGetUniformLocation(programId, "wallsTex");
-    glUniform1i(wallTexLoc, 1);
-
+    wallTexLoc = glGetUniformLocation(programId, "wallTex");
 
     /**
      * Select clearing color: light blue as the sky.
@@ -550,13 +547,42 @@ void draw()
     /**
      * Drawing the elements of the scene
     */
+   //DRAWING FLOOR
     glUniform1ui(objectLoc, FLOOR); //Passing to shader
     glBindVertexArray(vao[FLOOR]);
 
     glMultiDrawElements(GL_TRIANGLE_STRIP,squCounts,GL_UNSIGNED_INT,(const void**)squOffsets,1);
+    
+
+    //DRAWING WALLS
+    //BINDING WALLS
+    glBindVertexArray(vao[WALLS]);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer[WALLS_VERTICES]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(parVertices), parVertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer[WALLS_INDICES]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(parIndices), parIndices, GL_STATIC_DRAW);
+
+    /**
+     * Storing variables for shaders 
+     */
+    //Coordinates
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(parVertices[0]), 0);
+    glEnableVertexAttribArray(0);
+
+    //Normals
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(parVertices[0]), (GLvoid*)sizeof(parVertices[0].coords));
+    glEnableVertexAttribArray(1);
+
+    //Textures
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(parVertices[0]), (GLvoid*)(sizeof(parVertices[0].coords)+sizeof(parVertices[0].normal)));
+    glEnableVertexAttribArray(2); 
+
 
     glUniform1ui(objectLoc, WALLS); //Passing to shader
     glBindVertexArray(vao[WALLS]);
+
+    glUniform1i(wallTexLoc, 1);
 
     glm_translate(modelViewMat, (vec3){0.0, 0.0, -50.0});
     glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
@@ -673,27 +699,36 @@ void camera()
 
     float radius = 5.0f;
 
-    if(motion.Forward)
+    bool collision_res = checkCollision(Player,CB1);
+   
+    printf("%f,%f,%f\n",CB1.center_position[0],CB1.center_position[1],CB1.center_position[2]);
+    printf("%f,%f,%f\n",Player.center_position[0],Player.center_position[1],Player.center_position[2]);
+    printf("%d\n",collision_res);
+
+    if(motion.Forward && collision_res)
     {
         camX += cos((yaw+90)*TO_RADIANS)/radius;
         camZ -= sin((yaw+90)*TO_RADIANS)/radius;
     }
-    if(motion.Backward)
+    if(motion.Backward && collision_res)
     {
         camX += cos((yaw+90+180)*TO_RADIANS)/radius;
         camZ -= sin((yaw+90+180)*TO_RADIANS)/radius;
     }
-    if(motion.Left)
+    if(motion.Left && collision_res)
     {
         camX += cos((yaw+90+90)*TO_RADIANS)/radius;
         camZ -= sin((yaw+90+90)*TO_RADIANS)/radius;
     }
-    if(motion.Right)
+    if(motion.Right && collision_res)
     {
         camX += cos((yaw+90-90)*TO_RADIANS)/radius;
         camZ -= sin((yaw+90-90)*TO_RADIANS)/radius;
     }
 
+    //tracking player movement
+    Player.center_position[0]=camX;
+    Player.center_position[2]=camZ;
     /**
      * Limit the values of pitch between -60 and 70.
      */
@@ -707,7 +742,7 @@ void camera()
     */
     glm_rotate(modelViewMat, ((-pitch)*TO_RADIANS), (vec3){1.0, 0.0, 0.0});
     glm_rotate(modelViewMat, ((-yaw)*TO_RADIANS), (vec3){0.0, 1.0, 0.0});
-   
+
     glm_translate(modelViewMat, (vec3){-camX, 0.0, -camZ});
 }
 
@@ -780,4 +815,11 @@ void keyboard_up(unsigned char key,int x,int y)
             motion.Right = false;
             break;
     }
+}
+
+//AABB collision
+bool checkCollision(CollisionBox Player, CollisionBox CB1){
+    return((Player.center_position[0]>=(-CB1.X_size)) && (Player.center_position[0]<=(CB1.X_size))&&
+           (Player.center_position[1]>=(-CB1.Y_size)) && (Player.center_position[1]<=(CB1.Y_size))&&
+           (Player.center_position[2]>=(-CB1.Z_size)) && (Player.center_position[2]<=(CB1.Z_size)));
 }

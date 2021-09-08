@@ -32,7 +32,7 @@ void fillSquVertexArray(Vertex squVertices[4]){
     squVertices[0].normal.y = 1.0;
     squVertices[0].normal.z = 0.0;
     //texture
-    squVertices[0].texCoords.x = 0.0;
+    squVertices[0].texCoords.x = 10.0;
     squVertices[0].texCoords.y = 0.0;
 
     squVertices[1].coords.x = -200.0;
@@ -42,7 +42,7 @@ void fillSquVertexArray(Vertex squVertices[4]){
     squVertices[1].normal.x = 0.0;
     squVertices[1].normal.y = 1.0;
     squVertices[1].normal.z = 0.0;
-    squVertices[1].texCoords.x = 10.0;
+    squVertices[1].texCoords.x = 0.0;
     squVertices[1].texCoords.y = 0.0;
 
     squVertices[2].coords.x = 200.0;
@@ -97,6 +97,84 @@ void fillSqu(Vertex squVertices[4], unsigned int squIndices[1][4], int squCounts
 }
 
 //WALLS
+void fillWallVertexArray(float X, float Y, Vertex squVertices[4]){
+
+    //VERTEX 0
+    //coordinate
+    squVertices[0].coords.x =X;
+    squVertices[0].coords.y = Y;
+    squVertices[0].coords.z = 0.0;
+    squVertices[0].coords.w = 1.0;
+    //normali
+    squVertices[0].normal.x = 0.0;
+    squVertices[0].normal.y = 1.0;
+    squVertices[0].normal.z = 0.0;
+    //texture
+    squVertices[0].texCoords.x = 0.0;
+    squVertices[0].texCoords.y = 0.0;
+
+    squVertices[1].coords.x = X;
+    squVertices[1].coords.y = 0.0;
+    squVertices[1].coords.z = 0.0;
+    squVertices[1].coords.w = 1.0;
+    squVertices[1].normal.x = 0.0;
+    squVertices[1].normal.y = 1.0;
+    squVertices[1].normal.z = 0.0;
+    squVertices[1].texCoords.x = 0.0;
+    squVertices[1].texCoords.y = 0.0;
+
+    squVertices[2].coords.x = 0.0;
+    squVertices[2].coords.y = Y;
+    squVertices[2].coords.z = 0.0;
+    squVertices[2].coords.w = 1.0;
+    squVertices[2].normal.x = 0.0;
+    squVertices[2].normal.y = 1.0;
+    squVertices[2].normal.z = 0.0;
+    squVertices[2].texCoords.x = 0.0;
+    squVertices[2].texCoords.y = 0.0;
+
+    squVertices[3].coords.x = 0.0;
+    squVertices[3].coords.y = 0.0;
+    squVertices[3].coords.z = 0.0;
+    squVertices[3].coords.w = 1.0;
+    squVertices[3].normal.x = 0.0;
+    squVertices[3].normal.y = 1.0;
+    squVertices[3].normal.z = 0.0;
+    squVertices[3].texCoords.x = 0.0;
+    squVertices[3].texCoords.y = 0.0;
+
+}
+
+void fillWallIndices(unsigned int squIndices[1][4]){
+    squIndices[0][0] = 0;
+    squIndices[0][1] = 1;
+    squIndices[0][2] = 2;
+    squIndices[0][3] = 3;
+}
+
+void fillWallCounts(int squCounts[1]){ //one triangle strip with 4 vertices
+    squCounts[0] = 4;
+}
+
+// Fill the array of buffer offsets
+void fillWallOffsets(void* squOffsets[1])
+{
+    squOffsets[0] = 0;
+}
+
+/**
+ * Fills the coordinates arrays and the pointers
+ * @param squVertices[4] The array that will contain the vertex coordinates data.
+ */
+void fillWall(float X, float Y, Vertex squVertices[4], unsigned int squIndices[1][4], int squCounts[1], void* squOffsets[1])
+{
+    fillWallVertexArray(X, Y, squVertices);
+    fillWallIndices(squIndices);
+    fillWallOffsets(squOffsets);
+    fillWallCounts(squCounts);
+}
+
+//CUBE
 /**
  * Fills the arrays for coordinates, normals and texture-coordinates to generate a parallelepiped.
  * @return Nothing.
