@@ -110,6 +110,8 @@ CollisionBox Player={   //Collision box per il giocatore - Questa deve restare f
     5.0f
 };
 
+bool collision;
+
 // Matrices
 static mat4 modelViewMat = GLM_MAT4_IDENTITY_INIT;
 static mat4 projMat = GLM_MAT4_IDENTITY_INIT;
@@ -699,36 +701,78 @@ void camera()
 
     float radius = 5.0f;
 
-    bool collision_res = checkCollision(Player,CB1);
-   
+    printf("%d,%d,%d,%d\n",motion.Backward, motion.Forward, motion.Left, motion.Right);
     printf("%f,%f,%f\n",CB1.center_position[0],CB1.center_position[1],CB1.center_position[2]);
     printf("%f,%f,%f\n",Player.center_position[0],Player.center_position[1],Player.center_position[2]);
-    printf("%d\n",collision_res);
+    printf("YAW: %f", yaw);
+    printf("%d\n",collision);
 
-    if(motion.Forward && collision_res)
-    {
-        camX += cos((yaw+90)*TO_RADIANS)/radius;
-        camZ -= sin((yaw+90)*TO_RADIANS)/radius;
+    CollisionBox TMP; //Misura quale sarà il prossimo spostamento.
+
+
+    if(motion.Forward)
+    {   
+
+        TMP.center_position[0] = camX + cos((yaw+90)*TO_RADIANS)/radius;
+        TMP.center_position[1] = 0.0;
+        TMP.center_position[2] = camZ - sin((yaw+90)*TO_RADIANS)/radius;
+        collision = checkCollision(TMP, CB1); //ci sarebbe una collisione
+        if(!collision){ //da invertire
+            
+        }else{
+            camX += cos((yaw+90)*TO_RADIANS)/radius;
+            camZ -= sin((yaw+90)*TO_RADIANS)/radius;
+        }
+        
     }
-    if(motion.Backward && collision_res)
+    if(motion.Backward)
     {
-        camX += cos((yaw+90+180)*TO_RADIANS)/radius;
-        camZ -= sin((yaw+90+180)*TO_RADIANS)/radius;
+        TMP.center_position[0] = camX - cos((yaw+90)*TO_RADIANS)/radius;
+        TMP.center_position[1] = 0.0;
+        TMP.center_position[2] = camZ + sin((yaw+90)*TO_RADIANS)/radius;
+        collision = checkCollision(TMP, CB1);
+        if(!collision){
+    
+        }else{
+            camX -= cos((yaw+90)*TO_RADIANS)/radius;
+            camZ += sin((yaw+90)*TO_RADIANS)/radius;
+        }
+
     }
-    if(motion.Left && collision_res)
+    if(motion.Left)
     {
-        camX += cos((yaw+90+90)*TO_RADIANS)/radius;
-        camZ -= sin((yaw+90+90)*TO_RADIANS)/radius;
+
+        TMP.center_position[0] = camX + cos((yaw+90+90)*TO_RADIANS)/radius;
+        TMP.center_position[1] = 0.0;
+        TMP.center_position[2] = camZ - sin((yaw+90+90)*TO_RADIANS)/radius;  
+        collision = checkCollision(TMP, CB1);
+        if(!collision){
+
+        }else{
+            camX += cos((yaw+90+90)*TO_RADIANS)/radius;
+            camZ -= sin((yaw+90+90)*TO_RADIANS)/radius;      
+        }
+          
     }
-    if(motion.Right && collision_res)
+    if(motion.Right)
     {
-        camX += cos((yaw+90-90)*TO_RADIANS)/radius;
-        camZ -= sin((yaw+90-90)*TO_RADIANS)/radius;
+        TMP.center_position[0] = camX - cos((yaw+90+90)*TO_RADIANS)/radius;
+        TMP.center_position[1] = 0.0;
+        TMP.center_position[2] = camZ + sin((yaw+90-90)*TO_RADIANS)/radius; 
+        collision = checkCollision(TMP, CB1);
+        if(!collision){
+           
+        }else{
+            camX -= cos((yaw+90+90)*TO_RADIANS)/radius;
+            camZ += sin((yaw+90+90)*TO_RADIANS)/radius;      
+        }
+
     }
 
     //tracking player movement
     Player.center_position[0]=camX;
     Player.center_position[2]=camZ;
+
     /**
      * Limit the values of pitch between -60 and 70.
      */
@@ -819,7 +863,7 @@ void keyboard_up(unsigned char key,int x,int y)
 
 //AABB collision
 bool checkCollision(CollisionBox Player, CollisionBox CB1){
-    return((Player.center_position[0]>=(-CB1.X_size)) && (Player.center_position[0]<=(CB1.X_size))&&
+    return((Player.center_position[0]>(-CB1.X_size)) && (Player.center_position[0]<(CB1.X_size))&&
            (Player.center_position[1]>=(-CB1.Y_size)) && (Player.center_position[1]<=(CB1.Y_size))&&
            (Player.center_position[2]>=(-CB1.Z_size)) && (Player.center_position[2]<=(CB1.Z_size)));
 }
