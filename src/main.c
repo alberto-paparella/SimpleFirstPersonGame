@@ -98,7 +98,7 @@ float X_lat=0.0;
 float Y_lat=0.0;
 float Z_lat=0.0;
 
-CollisionBox objCollBoxes[4];
+CollisionBox objCollBoxes[9];
 static unsigned int parIndices[4][4];
 static int parCounts[4];
 static void* parOffsets[4];
@@ -112,8 +112,23 @@ static Vertex par1Vertices[4*4];
 //Cubo 2
 static Vertex par2Vertices[4*4];
 
-//Cubo 2
+//Cubo 3
 static Vertex par3Vertices[4*4];
+
+//Cubo 4
+static Vertex par4Vertices[4*4];
+
+//Cubo 5
+static Vertex par5Vertices[4*4];
+
+//Cubo 6
+static Vertex par6Vertices[4*4];
+
+//Cubo 7
+static Vertex par7Vertices[4*4];
+
+//Cubo 8
+static Vertex par8Vertices[4*4];
 
 
 CollisionBox Player={   //Collision box per il giocatore - Questa deve restare ferma nel mondo
@@ -206,7 +221,7 @@ float pitch = 0.0, yaw= 0.0;
  * Notice that we have no interest in moving up and down. 
  * TODO this can be scaled in the future, for example to implement jumps.
  */
-float camX = 0.0, camZ = 0.0;
+float camX = -0.0, camZ = -0.0;
 
 /**
  * Display function.
@@ -308,10 +323,10 @@ void init(void)
 
     //Cubes in the scene
     //CUBE 0
-    X_lat = 10.0;
-    Y_lat = 20.0;
-    Z_lat = 10.0;
-    vec3 pos={0.0, 0.0, -50.0};
+    X_lat = 70.0;
+    Y_lat = 5.0;
+    Z_lat = 2.0;
+    vec3 pos={0.0, 0.0, -70.0};
     fillPar(pos, X_lat, Y_lat, Z_lat, par0Vertices, parIndices, parCounts, parOffsets);
     //inizializza le coordinate
     for(int i = 0; i<3; i++){
@@ -322,12 +337,12 @@ void init(void)
     objCollBoxes[0].Z_size = Z_lat + 2;
 
     //CUBE 1
-    X_lat = 10.0;
-    Y_lat = 6.0;
-    Z_lat = 5.0;
-    pos[0]=-100.0;
+    X_lat = 2.0;
+    Y_lat = 5.0;
+    Z_lat = 70.0;
+    pos[0]=-70.0;
     pos[1]=0.0;
-    pos[2]=-40.0;
+    pos[2]=0.0;
     fillPar(pos, X_lat, Y_lat, Z_lat, par1Vertices, parIndices, parCounts, parOffsets);
     for(int i = 0; i<3; i++){
         objCollBoxes[1].center_position[i] = pos[i];
@@ -337,13 +352,13 @@ void init(void)
     objCollBoxes[1].Z_size = Z_lat + 2;
 
     //CUBE 2
-    X_lat = 20.0;
-    Y_lat = 30.0;
-    Z_lat = 15.0;
+    X_lat = 70.0;
+    Y_lat = 5.0;
+    Z_lat = 2.0;
 
-    pos[0]=100.0;
+    pos[0]=0.0;
     pos[1]=0.0;
-    pos[2]=-40.0;
+    pos[2]=70.0;
 
     fillPar(pos, X_lat, Y_lat, Z_lat, par2Vertices, parIndices, parCounts, parOffsets);
     for(int i = 0; i<3; i++){
@@ -354,12 +369,12 @@ void init(void)
     objCollBoxes[2].Z_size = Z_lat + 2;
 
     //CUBE 3
-    X_lat = 3.0;
-    Y_lat = 20.0;
-    Z_lat = 10.0;
-    pos[0]=-60.0;
+    X_lat = 2.0;
+    Y_lat = 5.0;
+    Z_lat = 70.0;
+    pos[0]=70.0;
     pos[1]=0.0;
-    pos[2]=-90.0;
+    pos[2]=0.0;
 
     fillPar(pos, X_lat, Y_lat, Z_lat, par3Vertices, parIndices, parCounts, parOffsets);
     for(int i = 0; i<3; i++){
@@ -368,6 +383,86 @@ void init(void)
     objCollBoxes[3].X_size = X_lat + 2;
     objCollBoxes[3].Y_size = 0.0;
     objCollBoxes[3].Z_size = Z_lat + 2;
+
+    //CUBE 4
+    X_lat = 20.0;
+    Y_lat = 5.0;
+    Z_lat = 20.0;
+    pos[0]=30.0;
+    pos[1]=0.0;
+    pos[2]=30.0;
+
+    fillPar(pos, X_lat, Y_lat, Z_lat, par4Vertices, parIndices, parCounts, parOffsets);
+    for(int i = 0; i<3; i++){
+        objCollBoxes[4].center_position[i] = pos[i];
+    }
+    objCollBoxes[4].X_size = X_lat + 2;
+    objCollBoxes[4].Y_size = 0.0;
+    objCollBoxes[4].Z_size = Z_lat + 2;
+
+    //CUBE 5
+    X_lat = 40.0;
+    Y_lat = 5.0;
+    Z_lat = 1.0;
+    pos[0]=-40.0;
+    pos[1]=0.0;
+    pos[2]=30.0;
+
+    fillPar(pos, X_lat, Y_lat, Z_lat, par5Vertices, parIndices, parCounts, parOffsets);
+    for(int i = 0; i<3; i++){
+        objCollBoxes[5].center_position[i] = pos[i];
+    }
+    objCollBoxes[5].X_size = X_lat + 2;
+    objCollBoxes[5].Y_size = 0.0;
+    objCollBoxes[5].Z_size = Z_lat + 2;
+
+    //CUBE 6
+    X_lat = 30.0;
+    Y_lat = 5.0;
+    Z_lat = 10.0;
+    pos[0]=20.0;
+    pos[1]=0.0;
+    pos[2]=-40.0;
+
+    fillPar(pos, X_lat, Y_lat, Z_lat, par6Vertices, parIndices, parCounts, parOffsets);
+    for(int i = 0; i<3; i++){
+        objCollBoxes[6].center_position[i] = pos[i];
+    }
+    objCollBoxes[6].X_size = X_lat + 2;
+    objCollBoxes[6].Y_size = 0.0;
+    objCollBoxes[6].Z_size = Z_lat + 2;
+
+    //CUBE 7
+    X_lat = 10.0;
+    Y_lat = 5.0;
+    Z_lat = 30.0;
+    pos[0]=-40.0;
+    pos[1]=0.0;
+    pos[2]=20.0;
+
+    fillPar(pos, X_lat, Y_lat, Z_lat, par7Vertices, parIndices, parCounts, parOffsets);
+    for(int i = 0; i<3; i++){
+        objCollBoxes[7].center_position[i] = pos[i];
+    }
+    objCollBoxes[7].X_size = X_lat + 2;
+    objCollBoxes[7].Y_size = 0.0;
+    objCollBoxes[7].Z_size = Z_lat + 2;
+
+    //CUBE 8
+    X_lat = 15.0;
+    Y_lat = 5.0;
+    Z_lat = 25.0;
+    pos[0]=-20.0;
+    pos[1]=0.0;
+    pos[2]=40.0;
+
+    fillPar(pos, X_lat, Y_lat, Z_lat, par8Vertices, parIndices, parCounts, parOffsets);
+    for(int i = 0; i<3; i++){
+        objCollBoxes[8].center_position[i] = pos[i];
+    }
+    objCollBoxes[8].X_size = X_lat + 2;
+    objCollBoxes[8].Y_size = 0.0;
+    objCollBoxes[8].Z_size = Z_lat + 2;
 
     /**
      * Setting up VAO's and VBO's
@@ -404,7 +499,7 @@ void init(void)
     //Projection matrix
     projMatLoc = glGetUniformLocation(programId, "projMat");
     //setting the viewing frustum
-    glm_frustum(-30.0, 30.0, -30.0, 30.0, 0.1, 10, projMat);
+    glm_frustum(-50.0, 50.0, -50.0, 50.0, 0.1, 100, projMat);
     glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, (GLfloat *)projMat);
     
     //ModelView matrix
@@ -666,7 +761,6 @@ void draw()
     glBindVertexArray(vao[FLOOR]);
 
     glMultiDrawElements(GL_TRIANGLE_STRIP,squCounts,GL_UNSIGNED_INT,(const void**)squOffsets,1);
-    
 
     //CUBO 0
     glBindVertexArray(vao[WALLS]);
@@ -782,6 +876,161 @@ void draw()
 
     //Textures
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(par3Vertices[0]), (GLvoid*)(sizeof(par3Vertices[0].coords)+sizeof(par3Vertices[0].normal)));
+    glEnableVertexAttribArray(2); 
+
+
+    glUniform1ui(objectLoc, WALLS); //Passing to shader
+    glBindVertexArray(vao[WALLS]);
+
+    glUniform1i(wallTexLoc, 1);
+
+    //glm_translate(modelViewMat, (vec3){0.0, 0.0, -50.0});
+    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
+
+    glMultiDrawElements(GL_TRIANGLE_STRIP, parCounts, GL_UNSIGNED_INT, (const void**)parOffsets, 4);
+
+    //CUBO 4
+    glBindVertexArray(vao[WALLS]);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer[WALLS_VERTICES]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(par4Vertices), par4Vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer[WALLS_INDICES]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(parIndices), parIndices, GL_STATIC_DRAW);
+
+    //Coordinates
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(par4Vertices[0]), 0);
+    glEnableVertexAttribArray(0);
+
+    //Normals
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(par4Vertices[0]), (GLvoid*)sizeof(par4Vertices[0].coords));
+    glEnableVertexAttribArray(1);
+
+    //Textures
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(par4Vertices[0]), (GLvoid*)(sizeof(par4Vertices[0].coords)+sizeof(par4Vertices[0].normal)));
+    glEnableVertexAttribArray(2); 
+
+
+    glUniform1ui(objectLoc, WALLS); //Passing to shader
+    glBindVertexArray(vao[WALLS]);
+
+    glUniform1i(wallTexLoc, 1);
+
+    //glm_translate(modelViewMat, (vec3){0.0, 0.0, -50.0});
+    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
+
+    glMultiDrawElements(GL_TRIANGLE_STRIP, parCounts, GL_UNSIGNED_INT, (const void**)parOffsets, 4);
+
+    //CUBO 5
+    glBindVertexArray(vao[WALLS]);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer[WALLS_VERTICES]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(par5Vertices), par5Vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer[WALLS_INDICES]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(parIndices), parIndices, GL_STATIC_DRAW);
+
+    //Coordinates
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(par5Vertices[0]), 0);
+    glEnableVertexAttribArray(0);
+
+    //Normals
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(par5Vertices[0]), (GLvoid*)sizeof(par5Vertices[0].coords));
+    glEnableVertexAttribArray(1);
+
+    //Textures
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(par5Vertices[0]), (GLvoid*)(sizeof(par5Vertices[0].coords)+sizeof(par5Vertices[0].normal)));
+    glEnableVertexAttribArray(2); 
+
+
+    glUniform1ui(objectLoc, WALLS); //Passing to shader
+    glBindVertexArray(vao[WALLS]);
+
+    glUniform1i(wallTexLoc, 1);
+
+    //glm_translate(modelViewMat, (vec3){0.0, 0.0, -50.0});
+    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
+
+    glMultiDrawElements(GL_TRIANGLE_STRIP, parCounts, GL_UNSIGNED_INT, (const void**)parOffsets, 4);
+
+    //CUBO 6
+    glBindVertexArray(vao[WALLS]);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer[WALLS_VERTICES]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(par6Vertices), par6Vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer[WALLS_INDICES]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(parIndices), parIndices, GL_STATIC_DRAW);
+
+    //Coordinates
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(par6Vertices[0]), 0);
+    glEnableVertexAttribArray(0);
+
+    //Normals
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(par6Vertices[0]), (GLvoid*)sizeof(par6Vertices[0].coords));
+    glEnableVertexAttribArray(1);
+
+    //Textures
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(par6Vertices[0]), (GLvoid*)(sizeof(par6Vertices[0].coords)+sizeof(par6Vertices[0].normal)));
+    glEnableVertexAttribArray(2); 
+
+
+    glUniform1ui(objectLoc, WALLS); //Passing to shader
+    glBindVertexArray(vao[WALLS]);
+
+    glUniform1i(wallTexLoc, 1);
+
+    //glm_translate(modelViewMat, (vec3){0.0, 0.0, -50.0});
+    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
+
+    glMultiDrawElements(GL_TRIANGLE_STRIP, parCounts, GL_UNSIGNED_INT, (const void**)parOffsets, 4);
+
+    //CUBO 7
+    glBindVertexArray(vao[WALLS]);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer[WALLS_VERTICES]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(par7Vertices), par7Vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer[WALLS_INDICES]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(parIndices), parIndices, GL_STATIC_DRAW);
+
+    //Coordinates
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(par7Vertices[0]), 0);
+    glEnableVertexAttribArray(0);
+
+    //Normals
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(par7Vertices[0]), (GLvoid*)sizeof(par7Vertices[0].coords));
+    glEnableVertexAttribArray(1);
+
+    //Textures
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(par7Vertices[0]), (GLvoid*)(sizeof(par7Vertices[0].coords)+sizeof(par7Vertices[0].normal)));
+    glEnableVertexAttribArray(2); 
+
+
+    glUniform1ui(objectLoc, WALLS); //Passing to shader
+    glBindVertexArray(vao[WALLS]);
+
+    glUniform1i(wallTexLoc, 1);
+
+    //glm_translate(modelViewMat, (vec3){0.0, 0.0, -50.0});
+    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
+
+    glMultiDrawElements(GL_TRIANGLE_STRIP, parCounts, GL_UNSIGNED_INT, (const void**)parOffsets, 4);
+
+    //CUBO 8
+    glBindVertexArray(vao[WALLS]);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer[WALLS_VERTICES]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(par8Vertices), par8Vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer[WALLS_INDICES]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(parIndices), parIndices, GL_STATIC_DRAW);
+
+    //Coordinates
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(par8Vertices[0]), 0);
+    glEnableVertexAttribArray(0);
+
+    //Normals
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(par8Vertices[0]), (GLvoid*)sizeof(par8Vertices[0].coords));
+    glEnableVertexAttribArray(1);
+
+    //Textures
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(par8Vertices[0]), (GLvoid*)(sizeof(par8Vertices[0].coords)+sizeof(par8Vertices[0].normal)));
     glEnableVertexAttribArray(2); 
 
 
@@ -1055,26 +1304,15 @@ void keyboard_up(unsigned char key,int x,int y)
 //AABB collision
 bool checkCollision(CollisionBox Player, CollisionBox *collBoxes){
 
-    for(int b = 0; b<4; b++){
-/*         if((Player.center_position[0]>=(-collBoxes[b].X_size)) && (Player.center_position[0]<=(collBoxes[b].X_size))&&
-           (Player.center_position[1]>=(-collBoxes[b].Y_size)) && (Player.center_position[1]<=(collBoxes[b].Y_size))&&
-           (Player.center_position[2]>=(-collBoxes[b].Z_size)) && (Player.center_position[2]<=(collBoxes[b].Z_size))){
-               return true;
-               break;
-           } */
+    for(int b = 0; b<8; b++){
+
         if((Player.center_position[0]>=(collBoxes[b].center_position[0]-collBoxes[b].X_size)) && (Player.center_position[0]<=(collBoxes[b].center_position[0]+collBoxes[b].X_size))&&
            (Player.center_position[1]>=(collBoxes[b].center_position[1]-collBoxes[b].Y_size)) && (Player.center_position[1]<=(collBoxes[b].center_position[1]+collBoxes[b].Y_size))&&
            (Player.center_position[2]>=(collBoxes[b].center_position[2]-collBoxes[b].Z_size)) && (Player.center_position[2]<=(collBoxes[b].center_position[2]+collBoxes[b].Z_size))){
                return true;
                break;
            } 
-/* 
-        if((Player.center_position[0]>=(-10)) && (Player.center_position[0]<=(10))&&
-           (Player.center_position[1]>=(-0)) && (Player.center_position[1]<=(0))&&
-           (Player.center_position[2]>=(-40)) && (Player.center_position[2]<=(-60))){
-               return true;
-               break;
-           } */
+
     }
 
    return false;

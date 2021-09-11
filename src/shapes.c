@@ -23,9 +23,9 @@ void fillSquVertexArray(Vertex squVertices[4]){
 
     //VERTEX 0
     //coordinate
-    squVertices[0].coords.x = -200.0;
+    squVertices[0].coords.x = -70.0;
     squVertices[0].coords.y = -5.0;
-    squVertices[0].coords.z = -200.0;
+    squVertices[0].coords.z = -70.0;
     squVertices[0].coords.w = 1.0;
     //normali
     squVertices[0].normal.x = 0.0;
@@ -35,9 +35,9 @@ void fillSquVertexArray(Vertex squVertices[4]){
     squVertices[0].texCoords.x = 10.0;
     squVertices[0].texCoords.y = 0.0;
 
-    squVertices[1].coords.x = -200.0;
+    squVertices[1].coords.x = -70.0;
     squVertices[1].coords.y = -5.0;
-    squVertices[1].coords.z = 200.0;
+    squVertices[1].coords.z = 70.0;
     squVertices[1].coords.w = 1.0;
     squVertices[1].normal.x = 0.0;
     squVertices[1].normal.y = 1.0;
@@ -45,9 +45,9 @@ void fillSquVertexArray(Vertex squVertices[4]){
     squVertices[1].texCoords.x = 0.0;
     squVertices[1].texCoords.y = 0.0;
 
-    squVertices[2].coords.x = 200.0;
+    squVertices[2].coords.x = 70.0;
     squVertices[2].coords.y = -5.0;
-    squVertices[2].coords.z = -200.0;
+    squVertices[2].coords.z = -70.0;
     squVertices[2].coords.w = 1.0;
     squVertices[2].normal.x = 0.0;
     squVertices[2].normal.y = 1.0;
@@ -55,9 +55,9 @@ void fillSquVertexArray(Vertex squVertices[4]){
     squVertices[2].texCoords.x = 10.0;
     squVertices[2].texCoords.y = 10.0;
 
-    squVertices[3].coords.x = -200.0;
+    squVertices[3].coords.x = 70.0;
     squVertices[3].coords.y = -5.0;
-    squVertices[3].coords.z = -200.0;
+    squVertices[3].coords.z = 70.0;
     squVertices[3].coords.w = 1.0;
     squVertices[3].normal.x = 0.0;
     squVertices[3].normal.y = 1.0;
@@ -111,7 +111,7 @@ void fillParVertexArray(vec3 center_position, float X, float Y, float Z, Vertex 
     parVertices[0].normal.x = 0.0;
     parVertices[0].normal.y = 0.0;
     parVertices[0].normal.z = 1.0;
-    parVertices[0].texCoords.x = X/3;
+    parVertices[0].texCoords.x = 3.0;
     parVertices[0].texCoords.y = 0.0;
 
     parVertices[1].coords.x = center_position[0]+X;
@@ -121,8 +121,8 @@ void fillParVertexArray(vec3 center_position, float X, float Y, float Z, Vertex 
     parVertices[1].normal.x = 0.0;
     parVertices[1].normal.y = 0.0;
     parVertices[1].normal.z = 1.0;
-    parVertices[1].texCoords.x = X/3;
-    parVertices[1].texCoords.y = X/3;
+    parVertices[1].texCoords.x = 3.0;
+    parVertices[1].texCoords.y = 1.0;
 
     parVertices[2].coords.x = center_position[0]-X;
     parVertices[2].coords.y = center_position[1]+Y;
@@ -142,7 +142,7 @@ void fillParVertexArray(vec3 center_position, float X, float Y, float Z, Vertex 
     parVertices[3].normal.y = 0.0;
     parVertices[3].normal.z = 1.0;
     parVertices[3].texCoords.x = 0.0;
-    parVertices[3].texCoords.y = X/3;
+    parVertices[3].texCoords.y = 1.0;
 
     //SECONDA FACCIA
     parVertices[4].coords.x = center_position[0]-X;
@@ -152,7 +152,7 @@ void fillParVertexArray(vec3 center_position, float X, float Y, float Z, Vertex 
     parVertices[4].normal.x = -1.0;
     parVertices[4].normal.y = 0.0;
     parVertices[4].normal.z = 0.0;
-    parVertices[4].texCoords.x = X/3;
+    parVertices[4].texCoords.x = 3.0;
     parVertices[4].texCoords.y = 0.0;
 
     parVertices[5].coords.x = center_position[0]-X;
@@ -162,8 +162,8 @@ void fillParVertexArray(vec3 center_position, float X, float Y, float Z, Vertex 
     parVertices[5].normal.x = -1.0;
     parVertices[5].normal.y = 0.0;
     parVertices[5].normal.z = 0.0;
-    parVertices[5].texCoords.x = X/3;
-    parVertices[5].texCoords.y = X/3;
+    parVertices[5].texCoords.x = 3.0;
+    parVertices[5].texCoords.y = 1.0;
 
     parVertices[6].coords.x = center_position[0]-X;
     parVertices[6].coords.y = center_position[1]+Y;
@@ -183,7 +183,7 @@ void fillParVertexArray(vec3 center_position, float X, float Y, float Z, Vertex 
     parVertices[7].normal.y = 0.0;
     parVertices[7].normal.z = 0.0;
     parVertices[7].texCoords.x = 0.0;
-    parVertices[7].texCoords.y = X/3;
+    parVertices[7].texCoords.y = 1.0;
 
     //TERZA FACCIA
     parVertices[8].coords.x = center_position[0]-X;
@@ -193,7 +193,7 @@ void fillParVertexArray(vec3 center_position, float X, float Y, float Z, Vertex 
     parVertices[8].normal.x = 0.0;
     parVertices[8].normal.y = 0.0;
     parVertices[8].normal.z = -1.0;
-    parVertices[8].texCoords.x = X/3;
+    parVertices[8].texCoords.x = 3.0;
     parVertices[8].texCoords.y = 0.0;
 
     parVertices[9].coords.x = center_position[0]-X;
@@ -203,8 +203,8 @@ void fillParVertexArray(vec3 center_position, float X, float Y, float Z, Vertex 
     parVertices[9].normal.x = 0.0;
     parVertices[9].normal.y = 0.0;
     parVertices[9].normal.z = -1.0;
-    parVertices[9].texCoords.x = X/3;
-    parVertices[9].texCoords.y = X/3;
+    parVertices[9].texCoords.x = 3.0;
+    parVertices[9].texCoords.y = 1.0;
 
     parVertices[10].coords.x = center_position[0]+X;
     parVertices[10].coords.y = center_position[1]+Y;
@@ -224,7 +224,7 @@ void fillParVertexArray(vec3 center_position, float X, float Y, float Z, Vertex 
     parVertices[11].normal.y = 0.0;
     parVertices[11].normal.z = -1.0;
     parVertices[11].texCoords.x = 0.0;
-    parVertices[11].texCoords.y = X/3;
+    parVertices[11].texCoords.y = 1.0;
 
     //QUARTA FACCIA
     parVertices[12].coords.x = center_position[0]+X;
@@ -234,7 +234,7 @@ void fillParVertexArray(vec3 center_position, float X, float Y, float Z, Vertex 
     parVertices[12].normal.x = 1.0;
     parVertices[12].normal.y = 0.0;
     parVertices[12].normal.z = 0.0;
-    parVertices[12].texCoords.x = X/3;
+    parVertices[12].texCoords.x = 3.0;
     parVertices[12].texCoords.y = 0.0;
 
     parVertices[13].coords.x = center_position[0]+X;
@@ -244,8 +244,8 @@ void fillParVertexArray(vec3 center_position, float X, float Y, float Z, Vertex 
     parVertices[13].normal.x = 1.0;
     parVertices[13].normal.y = 0.0;
     parVertices[13].normal.z = 0.0;
-    parVertices[13].texCoords.x = X/3;
-    parVertices[13].texCoords.y = X/3;
+    parVertices[13].texCoords.x = 3.0;
+    parVertices[13].texCoords.y = 1.0;
 
     parVertices[14].coords.x = center_position[0]+X;
     parVertices[14].coords.y = center_position[1]+Y;
@@ -265,7 +265,7 @@ void fillParVertexArray(vec3 center_position, float X, float Y, float Z, Vertex 
     parVertices[15].normal.y = 0.0;
     parVertices[15].normal.z = 0.0;
     parVertices[15].texCoords.x = 0.0;
-    parVertices[15].texCoords.y = X/3;
+    parVertices[15].texCoords.y = 1.0;
 }
 void fillParIndices(unsigned int parIndices[4][4]){
     for(int v=0; v<4; v++)
