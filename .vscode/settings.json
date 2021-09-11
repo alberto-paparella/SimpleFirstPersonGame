@@ -19,6 +19,7 @@
     "typeinfo": "c",
     "utility": "c",
     "stdbool.h": "c",
-    "random": "c"
+    "random": "c",
+    "stdio.h": "c"
   }
 }

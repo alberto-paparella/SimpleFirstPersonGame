@@ -3,7 +3,7 @@
  * Computer Graphics - A.Y. 2020/2021
  * Teacher:  Antonino Casile
  * Students: Alberto Paparella   Badge number: 144261
- *           Martina Tenani      Badge number:
+ *           Martina Tenani      Badge number: 144739
  * ------------------------------------------------------------------------------------------------
  * Final project:   SIMPLE FIRST PERSON GAME
  *                  An implementation of a simple camera used to navigate into a 3D world.
@@ -47,14 +47,11 @@
 #include "material.h"
 #include "object.h"
 
-static enum scene_element {FLOOR, WALLS} elements;
-static enum scene_element_components {FLOOR_VERTICES, FLOOR_INDICES, WALLS_VERTICES, WALLS_INDICES} element_components;
-
 /**
  * Light properties
 */
 static const Light light0={
-   (vec4){0.0, 0.0, 0.0, 1.0},
+   (vec4){0.0, 0.0, 0.0, 1.0}, 
    (vec4){1.0, 1.0, 1.0, 1.0}, 
    (vec4){1.0, 1.0, 1.0, 1.0},
    (vec4){0.0, 10.0, 0.0, 0.0} //light coords
@@ -79,6 +76,11 @@ static const Material floorMatrl =
    20.0f
 };
 
+const unsigned int N_buildings = 4; 
+
+static enum scene_element {FLOOR, WALLS} elements;
+static enum scene_element_components {FLOOR_VERTICES, FLOOR_INDICES, WALLS_VERTICES, WALLS_INDICES} element_components;
+
 /**
  * Storing floor data
 */
@@ -90,18 +92,29 @@ static int squCounts[1];
 static void* squOffsets[1];
 
 /**
- * Storing walls data
+ * Storing elements of the scene
 */
-static Vertex parVertices[4*4];
+float X_lat=0.0;
+float Y_lat=0.0;
+float Z_lat=0.0;
+
+CollisionBox objCollBoxes[4];
 static unsigned int parIndices[4][4];
 static int parCounts[4];
 static void* parOffsets[4];
-CollisionBox CB1={  //questa deve seguire il cubo
-    (vec3){0.0, 0.0, -50.0}, //Posizione dell'origine
-    20.0f,  //distanza delle x dall'origine
-    20.0f,  //distanza delle y dall'origine
-    20.0f   //distanza delle z dall'origine
-};
+
+//Cubo 0
+static Vertex par0Vertices[4*4];
+
+//Cubo 1
+static Vertex par1Vertices[4*4];
+
+//Cubo 2
+static Vertex par2Vertices[4*4];
+
+//Cubo 2
+static Vertex par3Vertices[4*4];
+
 
 CollisionBox Player={   //Collision box per il giocatore - Questa deve restare ferma nel mondo
     (vec3){0.0, 0.0, 0.0},
@@ -263,7 +276,7 @@ void keyboard(unsigned char key, int x, int y);
  */
 void keyboard_up(unsigned char key, int x, int y);
 
-bool checkCollision(CollisionBox Player, CollisionBox CB1);
+bool checkCollision(CollisionBox Player, CollisionBox *collBoxes);
 
 /**
  * Init function, used to initialize the application.
@@ -290,8 +303,71 @@ void init(void)
     /**
      * Initializing elements in the scene
      */
+    //floor
     fillSqu(squVertices, squIndices, squCounts, squOffsets);
-    fillPar(parVertices, parIndices, parCounts, parOffsets);
+
+    //Cubes in the scene
+    //CUBE 0
+    X_lat = 10.0;
+    Y_lat = 20.0;
+    Z_lat = 10.0;
+    vec3 pos={0.0, 0.0, -50.0};
+    fillPar(pos, X_lat, Y_lat, Z_lat, par0Vertices, parIndices, parCounts, parOffsets);
+    //inizializza le coordinate
+    for(int i = 0; i<3; i++){
+        objCollBoxes[0].center_position[i] = pos[i];
+    }
+    objCollBoxes[0].X_size = X_lat + 2;
+    objCollBoxes[0].Y_size = 0.0;
+    objCollBoxes[0].Z_size = Z_lat + 2;
+
+    //CUBE 1
+    X_lat = 10.0;
+    Y_lat = 6.0;
+    Z_lat = 5.0;
+    pos[0]=-100.0;
+    pos[1]=0.0;
+    pos[2]=-40.0;
+    fillPar(pos, X_lat, Y_lat, Z_lat, par1Vertices, parIndices, parCounts, parOffsets);
+    for(int i = 0; i<3; i++){
+        objCollBoxes[1].center_position[i] = pos[i];
+    }
+    objCollBoxes[1].X_size = X_lat + 2;
+    objCollBoxes[1].Y_size = 0.0;
+    objCollBoxes[1].Z_size = Z_lat + 2;
+
+    //CUBE 2
+    X_lat = 20.0;
+    Y_lat = 30.0;
+    Z_lat = 15.0;
+
+    pos[0]=100.0;
+    pos[1]=0.0;
+    pos[2]=-40.0;
+
+    fillPar(pos, X_lat, Y_lat, Z_lat, par2Vertices, parIndices, parCounts, parOffsets);
+    for(int i = 0; i<3; i++){
+        objCollBoxes[2].center_position[i] = pos[i];
+    }
+    objCollBoxes[2].X_size = X_lat + 2;
+    objCollBoxes[2].Y_size = 0.0;
+    objCollBoxes[2].Z_size = Z_lat + 2;
+
+    //CUBE 3
+    X_lat = 3.0;
+    Y_lat = 20.0;
+    Z_lat = 10.0;
+    pos[0]=-60.0;
+    pos[1]=0.0;
+    pos[2]=-90.0;
+
+    fillPar(pos, X_lat, Y_lat, Z_lat, par3Vertices, parIndices, parCounts, parOffsets);
+    for(int i = 0; i<3; i++){
+        objCollBoxes[3].center_position[i] = pos[i];
+    }
+    objCollBoxes[3].X_size = X_lat + 2;
+    objCollBoxes[3].Y_size = 0.0;
+    objCollBoxes[3].Z_size = Z_lat + 2;
 
     /**
      * Setting up VAO's and VBO's
@@ -470,6 +546,42 @@ int main(int argc, char**argv)
     printf("# - ESC to close the application       #\n");
     printf("########################################\n");
 
+    //TESTS
+/*     int arr_size = 4;
+    int *intPtr = malloc(arr_size * sizeof(int));
+    void **voidPtr = malloc(arr_size * sizeof(void*)); //puntatore a un array di puntatori a aree void.
+    Vertex 
+
+    intPtr[0] = 3;
+    intPtr[1] = 3;
+    intPtr[2] = 3;
+    intPtr[3] = 3;
+
+    voidPtr[0] = (GLvoid*)(4*0*sizeof(unsigned int));
+    voidPtr[1] = (GLvoid*)(4*1*sizeof(unsigned int));
+    voidPtr[2] = (GLvoid*)(4*2*sizeof(unsigned int));
+    voidPtr[3] = (GLvoid*)(4*3*sizeof(unsigned int));
+
+
+    Object Cube = {
+
+        intPtr,
+        voidPtr
+    };
+
+    Cube.objVertices.flex = malloc(3 * sizeof(Vertex));
+    Cube.objVertices.flex[0].coords.x = 0.0;
+    Cube.objVertices.flex[0].coords.y = 0.0;
+    Cube.objVertices.flex[0].coords.z = 0.0;
+
+    for(int i = 0; i<4; i++){
+        printf("%d", Cube.objCounts[i]);
+    }
+
+
+    free(intPtr);
+    free(*voidPtr);
+ */
     /**
      * Here we add support for GLEW.
      */
@@ -556,11 +668,10 @@ void draw()
     glMultiDrawElements(GL_TRIANGLE_STRIP,squCounts,GL_UNSIGNED_INT,(const void**)squOffsets,1);
     
 
-    //DRAWING WALLS
-    //BINDING WALLS
+    //CUBO 0
     glBindVertexArray(vao[WALLS]);
     glBindBuffer(GL_ARRAY_BUFFER, buffer[WALLS_VERTICES]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(parVertices), parVertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(par0Vertices), par0Vertices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer[WALLS_INDICES]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(parIndices), parIndices, GL_STATIC_DRAW);
@@ -569,15 +680,15 @@ void draw()
      * Storing variables for shaders 
      */
     //Coordinates
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(parVertices[0]), 0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(par0Vertices[0]), 0);
     glEnableVertexAttribArray(0);
 
     //Normals
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(parVertices[0]), (GLvoid*)sizeof(parVertices[0].coords));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(par0Vertices[0]), (GLvoid*)sizeof(par0Vertices[0].coords));
     glEnableVertexAttribArray(1);
 
     //Textures
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(parVertices[0]), (GLvoid*)(sizeof(parVertices[0].coords)+sizeof(parVertices[0].normal)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(par0Vertices[0]), (GLvoid*)(sizeof(par0Vertices[0].coords)+sizeof(par0Vertices[0].normal)));
     glEnableVertexAttribArray(2); 
 
 
@@ -586,7 +697,100 @@ void draw()
 
     glUniform1i(wallTexLoc, 1);
 
-    glm_translate(modelViewMat, (vec3){0.0, 0.0, -50.0});
+    //glm_translate(modelViewMat, (vec3){0.0, 0.0, -50.0});
+    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
+
+    glMultiDrawElements(GL_TRIANGLE_STRIP, parCounts, GL_UNSIGNED_INT, (const void**)parOffsets, 4);
+
+    //CUBO 1
+    glBindVertexArray(vao[WALLS]);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer[WALLS_VERTICES]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(par1Vertices), par1Vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer[WALLS_INDICES]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(parIndices), parIndices, GL_STATIC_DRAW);
+
+    //Coordinates
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(par1Vertices[0]), 0);
+    glEnableVertexAttribArray(0);
+
+    //Normals
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(par1Vertices[0]), (GLvoid*)sizeof(par1Vertices[0].coords));
+    glEnableVertexAttribArray(1);
+
+    //Textures
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(par1Vertices[0]), (GLvoid*)(sizeof(par1Vertices[0].coords)+sizeof(par1Vertices[0].normal)));
+    glEnableVertexAttribArray(2); 
+
+
+    glUniform1ui(objectLoc, WALLS); //Passing to shader
+    glBindVertexArray(vao[WALLS]);
+
+    glUniform1i(wallTexLoc, 1);
+
+    //glm_translate(modelViewMat, (vec3){0.0, 0.0, -50.0});
+    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
+
+    glMultiDrawElements(GL_TRIANGLE_STRIP, parCounts, GL_UNSIGNED_INT, (const void**)parOffsets, 4);
+
+    //CUBO 2
+    glBindVertexArray(vao[WALLS]);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer[WALLS_VERTICES]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(par2Vertices), par2Vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer[WALLS_INDICES]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(parIndices), parIndices, GL_STATIC_DRAW);
+
+    //Coordinates
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(par2Vertices[0]), 0);
+    glEnableVertexAttribArray(0);
+
+    //Normals
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(par2Vertices[0]), (GLvoid*)sizeof(par2Vertices[0].coords));
+    glEnableVertexAttribArray(1);
+
+    //Textures
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(par2Vertices[0]), (GLvoid*)(sizeof(par2Vertices[0].coords)+sizeof(par2Vertices[0].normal)));
+    glEnableVertexAttribArray(2); 
+
+
+    glUniform1ui(objectLoc, WALLS); //Passing to shader
+    glBindVertexArray(vao[WALLS]);
+
+    glUniform1i(wallTexLoc, 1);
+
+    //glm_translate(modelViewMat, (vec3){0.0, 0.0, -50.0});
+    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
+
+    glMultiDrawElements(GL_TRIANGLE_STRIP, parCounts, GL_UNSIGNED_INT, (const void**)parOffsets, 4);
+
+    //CUBO 3
+    glBindVertexArray(vao[WALLS]);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer[WALLS_VERTICES]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(par3Vertices), par3Vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer[WALLS_INDICES]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(parIndices), parIndices, GL_STATIC_DRAW);
+
+    //Coordinates
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(par3Vertices[0]), 0);
+    glEnableVertexAttribArray(0);
+
+    //Normals
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(par3Vertices[0]), (GLvoid*)sizeof(par3Vertices[0].coords));
+    glEnableVertexAttribArray(1);
+
+    //Textures
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(par3Vertices[0]), (GLvoid*)(sizeof(par3Vertices[0].coords)+sizeof(par3Vertices[0].normal)));
+    glEnableVertexAttribArray(2); 
+
+
+    glUniform1ui(objectLoc, WALLS); //Passing to shader
+    glBindVertexArray(vao[WALLS]);
+
+    glUniform1i(wallTexLoc, 1);
+
+    //glm_translate(modelViewMat, (vec3){0.0, 0.0, -50.0});
     glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
 
     glMultiDrawElements(GL_TRIANGLE_STRIP, parCounts, GL_UNSIGNED_INT, (const void**)parOffsets, 4);
@@ -701,11 +905,10 @@ void camera()
 
     float radius = 5.0f;
 
-    printf("%d,%d,%d,%d\n",motion.Backward, motion.Forward, motion.Left, motion.Right);
-    printf("%f,%f,%f\n",CB1.center_position[0],CB1.center_position[1],CB1.center_position[2]);
-    printf("%f,%f,%f\n",Player.center_position[0],Player.center_position[1],Player.center_position[2]);
-    printf("YAW: %f", yaw);
-    printf("%d\n",collision);
+    printf("BOX EXTREMITIES: \n X = %f, %f \n Y =  %f, %f \n Z = %f, %f \n ",(objCollBoxes->center_position[0]-objCollBoxes->X_size), (objCollBoxes->center_position[0]+objCollBoxes->X_size),  (objCollBoxes->center_position[1]-objCollBoxes->Y_size),  (objCollBoxes->center_position[1]+objCollBoxes->Y_size),  (objCollBoxes->center_position[2]-objCollBoxes->Z_size),  (objCollBoxes->center_position[2]+objCollBoxes->Z_size));
+    printf("PLAYER POSITION: %f,%f,%f\n",Player.center_position[0], Player.center_position[1], Player.center_position[2]);
+    printf("YAW: %f\n", yaw);
+    printf("COLLISION: %d\n",collision);
 
     CollisionBox TMP; //Misura quale sarà il prossimo spostamento.
 
@@ -716,28 +919,22 @@ void camera()
         TMP.center_position[0] = camX + cos((yaw+90)*TO_RADIANS)/radius;
         TMP.center_position[1] = 0.0;
         TMP.center_position[2] = camZ - sin((yaw+90)*TO_RADIANS)/radius;
-        collision = checkCollision(TMP, CB1); //ci sarebbe una collisione
-        if(!collision){ //da invertire
-            
-        }else{
+        collision = checkCollision(TMP, objCollBoxes); //ci sarebbe una collisione
+        if(!collision){ 
             camX += cos((yaw+90)*TO_RADIANS)/radius;
             camZ -= sin((yaw+90)*TO_RADIANS)/radius;
         }
-        
     }
     if(motion.Backward)
     {
         TMP.center_position[0] = camX - cos((yaw+90)*TO_RADIANS)/radius;
         TMP.center_position[1] = 0.0;
         TMP.center_position[2] = camZ + sin((yaw+90)*TO_RADIANS)/radius;
-        collision = checkCollision(TMP, CB1);
+        collision = checkCollision(TMP, objCollBoxes);
         if(!collision){
-    
-        }else{
             camX -= cos((yaw+90)*TO_RADIANS)/radius;
             camZ += sin((yaw+90)*TO_RADIANS)/radius;
         }
-
     }
     if(motion.Left)
     {
@@ -745,28 +942,22 @@ void camera()
         TMP.center_position[0] = camX + cos((yaw+90+90)*TO_RADIANS)/radius;
         TMP.center_position[1] = 0.0;
         TMP.center_position[2] = camZ - sin((yaw+90+90)*TO_RADIANS)/radius;  
-        collision = checkCollision(TMP, CB1);
+        collision = checkCollision(TMP, objCollBoxes);
         if(!collision){
-
-        }else{
             camX += cos((yaw+90+90)*TO_RADIANS)/radius;
-            camZ -= sin((yaw+90+90)*TO_RADIANS)/radius;      
-        }
-          
+            camZ -= sin((yaw+90+90)*TO_RADIANS)/radius; 
+        }     
     }
     if(motion.Right)
     {
         TMP.center_position[0] = camX - cos((yaw+90+90)*TO_RADIANS)/radius;
         TMP.center_position[1] = 0.0;
         TMP.center_position[2] = camZ + sin((yaw+90-90)*TO_RADIANS)/radius; 
-        collision = checkCollision(TMP, CB1);
+        collision = checkCollision(TMP, objCollBoxes);
         if(!collision){
-           
-        }else{
             camX -= cos((yaw+90+90)*TO_RADIANS)/radius;
-            camZ += sin((yaw+90+90)*TO_RADIANS)/radius;      
+            camZ += sin((yaw+90+90)*TO_RADIANS)/radius; 
         }
-
     }
 
     //tracking player movement
@@ -862,8 +1053,29 @@ void keyboard_up(unsigned char key,int x,int y)
 }
 
 //AABB collision
-bool checkCollision(CollisionBox Player, CollisionBox CB1){
-    return((Player.center_position[0]>(-CB1.X_size)) && (Player.center_position[0]<(CB1.X_size))&&
-           (Player.center_position[1]>=(-CB1.Y_size)) && (Player.center_position[1]<=(CB1.Y_size))&&
-           (Player.center_position[2]>=(-CB1.Z_size)) && (Player.center_position[2]<=(CB1.Z_size)));
+bool checkCollision(CollisionBox Player, CollisionBox *collBoxes){
+
+    for(int b = 0; b<4; b++){
+/*         if((Player.center_position[0]>=(-collBoxes[b].X_size)) && (Player.center_position[0]<=(collBoxes[b].X_size))&&
+           (Player.center_position[1]>=(-collBoxes[b].Y_size)) && (Player.center_position[1]<=(collBoxes[b].Y_size))&&
+           (Player.center_position[2]>=(-collBoxes[b].Z_size)) && (Player.center_position[2]<=(collBoxes[b].Z_size))){
+               return true;
+               break;
+           } */
+        if((Player.center_position[0]>=(collBoxes[b].center_position[0]-collBoxes[b].X_size)) && (Player.center_position[0]<=(collBoxes[b].center_position[0]+collBoxes[b].X_size))&&
+           (Player.center_position[1]>=(collBoxes[b].center_position[1]-collBoxes[b].Y_size)) && (Player.center_position[1]<=(collBoxes[b].center_position[1]+collBoxes[b].Y_size))&&
+           (Player.center_position[2]>=(collBoxes[b].center_position[2]-collBoxes[b].Z_size)) && (Player.center_position[2]<=(collBoxes[b].center_position[2]+collBoxes[b].Z_size))){
+               return true;
+               break;
+           } 
+/* 
+        if((Player.center_position[0]>=(-10)) && (Player.center_position[0]<=(10))&&
+           (Player.center_position[1]>=(-0)) && (Player.center_position[1]<=(0))&&
+           (Player.center_position[2]>=(-40)) && (Player.center_position[2]<=(-60))){
+               return true;
+               break;
+           } */
+    }
+
+   return false;
 }
