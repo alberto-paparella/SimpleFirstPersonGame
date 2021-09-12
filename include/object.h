@@ -8,13 +8,13 @@ typedef struct {
     size_t x;
     size_t y;
     float flex[];
-}array2d_tf;
+} array2d_tf;
 
 typedef struct {
     size_t x;
     size_t y;
     unsigned int flex[];
-}array2d_tui;
+} array2d_tui;
 
 
 typedef struct collision_box{
@@ -26,11 +26,8 @@ typedef struct collision_box{
 
 typedef struct object{
     Vertex objVertices;
-    //array2d_tui *objIndices;
     int *objCounts;
     void *objOffsets;
-    //CollisionBox CB;
-}Object;
-
+} Object;
 
 #endif

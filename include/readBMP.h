@@ -10,5 +10,4 @@ struct BitMapFile
 
 struct BitMapFile *readBMP(char* filename);
 
-
 #endif // READBMP_H_INCLUDED

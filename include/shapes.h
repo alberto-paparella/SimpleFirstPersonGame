@@ -4,6 +4,16 @@
 #include "vertex.h"
 
 /**
+ * Parallelepiped data structure
+ */
+typedef struct {
+    /* Length (1/2) */
+    float X_lat, Y_lat, Z_lat;
+    /* Initial position */
+    vec3 pos;
+} Parallelepiped;
+
+/**
  * Parallelepiped
 */
 void fillParVertexArray(vec3 center_position, float X, float Y, float Z, Vertex parVertices[4*4]);

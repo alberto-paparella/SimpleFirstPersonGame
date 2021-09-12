@@ -9,6 +9,6 @@ typedef struct light{
     vec4 difCols;
     vec4 specCols;
     vec4 coords;
-}Light;
+} Light;
 
 #endif

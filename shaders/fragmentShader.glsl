@@ -7,9 +7,9 @@
 uniform sampler2D floorTex;
 uniform sampler2D wallTex;
 
-//material properties
+// material properties
 in vec4 frontAmbDiffExport, frontSpecExport, backAmbDiffExport, backSpecExport;
-//texture
+// texture
 in vec2 texCoordsExport;
 
 uniform uint object;
