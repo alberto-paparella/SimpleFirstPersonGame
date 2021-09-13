@@ -39,6 +39,7 @@ OBJ=$(patsubst %,$(ODIR)/%,$(_OBJ))
 
 # Here is where the magic happens
 $(ODIR)/%.o: $(SDIR)/%.c $(DEPS)
+	@mkdir -p $(@D)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(APP): $(OBJ)
