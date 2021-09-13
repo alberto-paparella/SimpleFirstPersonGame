@@ -126,7 +126,6 @@ static unsigned int parIndices[4][4];
 static int parCounts[4];
 static void* parOffsets[4];
 
-
 /**
  * Parallelepipeds.
  */
@@ -134,14 +133,14 @@ Parallelepiped par[nPar] = {
     /**
      * To separate data from instructions, we specify here
      * dimensions and position for each parallelepiped.
-     * In the few following lines is where the all the scene is delcarater! =)
+     * In the few following lines is where the all the scene is declared! =)
      */
-    /* External boundaries */
+    /* External boundaries. */
     { 60.0, 5.0,  2.0, {   0.0, 0.0, -60.0 } }, /* Parallelepiped  0 */
     {  2.0, 5.0, 60.0, { -60.0, 0.0,   0.0 } }, /* Parallelepiped  1 */
     { 60.0, 5.0,  2.0, {   0.0, 0.0,  60.0 } }, /* Parallelepiped  2 */
     {  2.0, 5.0, 60.0, {  60.0, 0.0,   0.0 } }, /* Parallelepiped  3 */
-    /* Internal walls */
+    /* Internal walls. */
     {  1.0, 5.0, 15.0, {  45.0, 0.0, -45.0 } }, /* Parallelepiped  4 */
     { 10.0, 5.0,  1.0, {  36.0, 0.0, -30.0 } }, /* Parallelepiped  5 */
     { 20.0, 5.0, 10.0, {  17.5, 0.0, -39.0 } }, /* Parallelepiped  6 */
@@ -156,18 +155,19 @@ Parallelepiped par[nPar] = {
 };
 
 /**
- * Parallelepipeds vertex arrays
+ * Parallelepipeds vertex arrays.
  */
 static Vertex parVertices[nPar][16];
 
 /**
- * Collision boxes for the parallelepipeds
+ * Collision boxes for the parallelepipeds.
  */
 CollisionBox objCollBoxes[nPar];
 
 /**
  * Player collision box.
- * It must always be on the center of the world.
+ * It must always be on the center of the world
+ * (it is the walls the moves towards the user!).
  */
 CollisionBox Player = {
     (vec3){0.0, 0.0, 0.0},
@@ -209,11 +209,6 @@ texture[2];
  * Local storage for bmp image data.
  */
 struct BitMapFile *image[2];
-
-/**
- * File containing the bmp image.
- */
-char *fileName = "textures/grass.bmp";
 
 /**
  * Width and height of the window (Aspect ratio 16:9).
@@ -350,15 +345,15 @@ void init(void)
      * Initializing elements in the scene.
      */
 
-    /* Floor - grass */
+    /* Floor - grass. */
     fillSqu(squVertices, squIndices, squCounts, squOffsets);
 
-    /* Walls in the scene */
+    /* Walls in the scene. */
     for (i = 0; i < nPar; i++) {
-        /* Initialize vertex array */
+        /* Initialize vertex array. */
         fillPar(par[i].pos, par[i].X_lat, par[i].Y_lat, par[i].Z_lat,
                 parVertices[i], parIndices, parCounts, parOffsets);
-        /* Initialize collision box */
+        /* Initialize collision box. */
         for(int j = 0; j<3; j++){
             objCollBoxes[i].center_position[j] = par[i].pos[j];
         }
@@ -368,7 +363,7 @@ void init(void)
     }
 
     /**
-     * Setting up VAO's and VBO's
+     * Setting up VAO's and VBO's.
      */
     glGenVertexArrays(2, vao);
 
@@ -382,8 +377,9 @@ void init(void)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(squIndices), squIndices, GL_STATIC_DRAW);
 
     /**
-     * Storing variables for shaders 
+     * Storing variables for shaders .
      */
+
     /* Coordinates */
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(squVertices[0]), 0);
     glEnableVertexAttribArray(0);
@@ -399,17 +395,17 @@ void init(void)
     /**
      * Getting matrices and object locations.
      */    
-    projMatLoc = glGetUniformLocation(programId, "projMat");    /* Projection matrix */
-    glm_frustum(-50.0, 50.0, -50.0, 50.0, 0.1, 100, projMat);   /* Setting the viewing frustum */
+    projMatLoc = glGetUniformLocation(programId, "projMat");    /* Projection matrix. */
+    glm_frustum(-50.0, 50.0, -50.0, 50.0, 0.1, 100, projMat);   /* Setting the viewing frustum .*/
     glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, (GLfloat *)projMat);
     
-    /* ModelView matrix */
+    /* ModelView matrix. */
     modelViewMatLoc = glGetUniformLocation(programId,"modelViewMat");
 
-    /* Normal matrix */
+    /* Normal matrix. */
     normalMatLoc = glGetUniformLocation(programId, "normalMat");
 
-    /* Object location */
+    /* Object location. */
     objectLoc = glGetUniformLocation(programId, "object");
 
     /**
@@ -422,12 +418,12 @@ void init(void)
     glUniform4fv(glGetUniformLocation(programId, "light0.coords"), 1, &light0.coords[0]);
 
     /**
-     * Passing global ambient parameter uniform location to the shader
+     * Passing global ambient parameter uniform location to the shader.
      */
     glUniform4fv(glGetUniformLocation(programId, "globAmb"), 1, &globAmb[0]);
 
     /**
-     * Passing material paramenters to the shader
+     * Passing material paramenters to the shader.
      */
     glUniform4fv(glGetUniformLocation(programId, "floorMatrl.ambRefl"), 1, &floorMatrl.ambRefl[0]);
     glUniform4fv(glGetUniformLocation(programId, "floorMatrl.difRefl"), 1, &floorMatrl.difRefl[0]);
@@ -436,18 +432,18 @@ void init(void)
     glUniform1f(glGetUniformLocation(programId, "floorMatrl.shininess"), floorMatrl.shininess);
 
     /**
-     * Loading the texture image
+     * Loading the texture image.
      */
     image[0] = readBMP("./textures/wild_grass.bmp");
     image[1] = readBMP("./textures/bricks.bmp");
 
     /**
-     * Creating the texture
+     * Creating the texture.
      */
-    glGenTextures(2, texture);//create texture ids
+    glGenTextures(2, texture);  /* Create texture ids. */
 
     /**
-     * Binding the texture of the floor
+     * Binding the texture of the floor.
      */
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture[0]);
@@ -458,13 +454,13 @@ void init(void)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     /**
-     * Passing the texture to the shader
+     * Passing the texture to the shader.
      */
     floorTexLoc = glGetUniformLocation(programId, "floorTex");
     glUniform1i(floorTexLoc, 0);
 
     /**
-     * Binding the texture of the wall
+     * Binding the texture of the wall.
      */
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, texture[1]);
@@ -475,7 +471,7 @@ void init(void)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     /**
-     * Passing the texture to the shader
+     * Passing the texture to the shader.
      */
     wallTexLoc = glGetUniformLocation(programId, "wallTex");
 
@@ -513,12 +509,12 @@ void init(void)
  * @param argv -
  * @return 0 if everything went flawless, another integer different from 0 otherwise.
  */
-int main(int argc, char**argv)
+int main(int argc, char **argv)
 {
     glutInit(&argc, argv);
 
     /**
-     * Setting OpenGL version
+     * Setting OpenGL version.
      */
     glutInitContextVersion(4, 3);
     glutInitContextProfile(GLUT_CORE_PROFILE);
@@ -596,7 +592,7 @@ void draw()
     mat3 TMP_normal;
 
     /**
-     * "Pushing" the matrix
+     * "Pushing" the matrix.
      */
     glm_mat4_copy(modelViewMat,TMP);
     glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, (GLfloat *)(modelViewMat));
@@ -607,7 +603,7 @@ void draw()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     /**
-     * Calculate and update normal matrix
+     * Calculate and update normal matrix.
      */
     glm_mat4_pick3(modelViewMat, TMP_normal);
     glm_mat3_inv(TMP_normal, normalMat);
@@ -615,15 +611,16 @@ void draw()
     glUniformMatrix3fv(normalMatLoc, 1, GL_FALSE, (GLfloat *)normalMat);
 
     /**
-     * Drawing the elements of the scene
+     * Drawing the elements of the scene.
     */
-    /* Drawing the floor/grass */
-    glUniform1ui(objectLoc, FLOOR); //Passing to shader
+
+    /* Drawing the floor/grass. */
+    glUniform1ui(objectLoc, FLOOR); /* Passing to shader. */
     glBindVertexArray(vao[FLOOR]);
 
     glMultiDrawElements(GL_TRIANGLE_STRIP,squCounts,GL_UNSIGNED_INT,(const void**)squOffsets,1);
 
-    /* Drawing Parallelepipeds */
+    /* Drawing Parallelepipeds. */
     for (i = 0; i < nPar; i++) {
         glBindVertexArray(vao[WALLS]);
         glBindBuffer(GL_ARRAY_BUFFER, buffer[WALLS_VERTICES]);
@@ -633,22 +630,22 @@ void draw()
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(parIndices), parIndices, GL_STATIC_DRAW);
 
         /**
-         * Storing variables for shaders 
+         * Storing variables for shaders.
          */
-        /* Coordinates */
+
+        /* Coordinates. */
         glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(parVertices[i][0]), 0);
         glEnableVertexAttribArray(0);
 
-        /* Normals */
+        /* Normals. */
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(parVertices[i][0]), (GLvoid*)sizeof(parVertices[i][0].coords));
         glEnableVertexAttribArray(1);
 
-        /* Textures */
+        /* Textures. */
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(parVertices[i][0]), (GLvoid*)(sizeof(parVertices[i][0].coords)+sizeof(parVertices[i][0].normal)));
         glEnableVertexAttribArray(2); 
 
-
-        glUniform1ui(objectLoc, WALLS); /* Passing arguments to shader */
+        glUniform1ui(objectLoc, WALLS); /* Passing arguments to shader. */
         glBindVertexArray(vao[WALLS]);
 
         glUniform1i(wallTexLoc, 1);
@@ -661,7 +658,7 @@ void draw()
     glFlush();
 
     /**
-     * "Popping" the matrix
+     * "Popping" the matrix.
      */
     glm_mat4_copy(TMP, modelViewMat);
 
@@ -786,7 +783,7 @@ void camera()
     /* To measure the next movement */
     CollisionBox TMP;
 
-    /* Forward movement */
+    /* Forward movement. */
     if(motion.Forward)
     {
         TMP.center_position[0] = camX + cos((yaw+90)*TO_RADIANS)/radius;
@@ -798,7 +795,7 @@ void camera()
             camZ -= sin((yaw+90)*TO_RADIANS)/radius;
         }
     }
-    /* Backward movement */
+    /* Backward movement. */
     if(motion.Backward)
     {
         TMP.center_position[0] = camX - cos((yaw+90)*TO_RADIANS)/radius;
@@ -822,7 +819,7 @@ void camera()
             camZ -= sin((yaw+180)*TO_RADIANS)/radius; 
         }     
     }
-    /* Right movement */
+    /* Right movement. */
     if(motion.Right)
     {
         TMP.center_position[0] = camX - cos((yaw+180)*TO_RADIANS)/radius;

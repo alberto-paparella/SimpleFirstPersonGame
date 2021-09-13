@@ -5,11 +5,9 @@
  * with point coordinates.
  */
 
-#include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <cglm/cglm.h>
 #include <cglm/types-struct.h>
-#include <stdio.h>
 #include <math.h>
 
 #include "shapes.h"
