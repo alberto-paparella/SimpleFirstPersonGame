@@ -46,7 +46,7 @@
 #include "shapes.h"
 #include "light.h"
 #include "material.h"
-#include "object.h"
+#include "collisionBox.h"
 
 /**
  * Frame per seconds.

@@ -4,7 +4,8 @@
 #include <cglm/cglm.h>
 #include <cglm/types-struct.h>
 
-typedef struct light{
+typedef struct Light
+{
     vec4 ambCols;
     vec4 difCols;
     vec4 specCols;

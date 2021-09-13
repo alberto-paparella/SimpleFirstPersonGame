@@ -1,7 +1,6 @@
 #ifndef MATERIAL_H_INCLUDED
 #define MATERIAL_H_INCLUDED
 
-#include <GL/glew.h>
 #include <cglm/cglm.h>
 
 typedef struct Material

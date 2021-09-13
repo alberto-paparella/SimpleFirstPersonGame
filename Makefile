@@ -30,7 +30,7 @@ CFLAGS=-I$(IDIR)
 LIBS=-lglut -lGLU -lGL -lGLEW -lm
 
 # Header files names
-_DEPS=readBMP.h shader.h shapes.h vertex.h light.h material.h object.h
+_DEPS=readBMP.h shader.h shapes.h vertex.h light.h material.h collisionBox.h
 DEPS=$(patsubst %,$(IDIR)/%,$(_DEPS))
 
 # Source code files names

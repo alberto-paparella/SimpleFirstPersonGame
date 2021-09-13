@@ -1,13 +1,14 @@
 #ifndef READBMP_H_INCLUDED
 #define READBMP_H_INCLUDED
 
-struct BitMapFile
+typedef struct BitMapFile
 {
    int sizeX;
    int sizeY;
    unsigned char *data;
-};
+} BitMapFile;
 
-struct BitMapFile *readBMP(char* filename);
+BitMapFile *readBMP(char* filename);
+
 
 #endif // READBMP_H_INCLUDED
