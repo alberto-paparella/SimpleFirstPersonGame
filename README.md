@@ -38,3 +38,8 @@ For the collission system, we implemented the followuing logic: check if the
 next step will locate the object around you; if that is the case, don't
 update the matrices in that direction.
  
+## How to compile
+Go to the project main directory ```sfpg/``` with the command line and launch
+the ```make``` command. The project will create an executable in the same directory
+called ```sfpg``` which can be launched with ```./sfpg```.
+All .o files are stored in the ```obj/``` directory, to keep things clean.
