@@ -4,7 +4,7 @@ layout(location=0) in vec4 objCoords;
 layout(location=1) in vec3 objNormals;
 layout(location=2) in vec2 objTexCoords;
 
-//they are global
+// Globals
 uniform mat4 projMat;
 uniform mat4 modelViewMat;
 uniform mat3 normalMat;
@@ -13,7 +13,7 @@ uniform uint object;
 out vec4 frontAmbDiffExport, frontSpecExport, backAmbDiffExport, backSpecExport;
 out vec2 texCoordsExport;
 
-struct Light{
+struct Light {
    vec4 ambCols;
    vec4 difCols;
    vec4 specCols;
@@ -23,7 +23,7 @@ struct Light{
 uniform Light light0;
 uniform vec4 globAmb;
 
-struct Material{
+struct Material {
    vec4 ambRefl;
    vec4 difRefl;
    vec4 specRefl;
@@ -39,11 +39,10 @@ vec3 normal, lightDirection, eyeDirection, halfway;
 
 void main(void)
 {
-   //the object we are plotting
-
-      coords = objCoords;
-      normal = objNormals;
-      texCoordsExport = objTexCoords;
+   // The object we are plotting
+   coords = objCoords;
+   normal = objNormals;
+   texCoordsExport = objTexCoords;
 
    normal = normalize(normalMat*normal);
 
@@ -53,7 +52,7 @@ void main(void)
 
    halfway= (length(lightDirection+eyeDirection)==0.0f)?vec3(0.0):(lightDirection+eyeDirection)/length(lightDirection+eyeDirection);
 
-   //calcolo delle luci con il modello di Phong - FRONT FACE
+   // Lighting calculation with Phong's model - FRONT FACE
    frontEmit = floorMatrl.emitCols;
    frontGlobAmb = globAmb * floorMatrl.ambRefl;
    frontAmb = light0.ambCols * floorMatrl.ambRefl;
@@ -62,7 +61,7 @@ void main(void)
    frontAmbDiffExport = vec4(vec3(min(frontEmit + frontGlobAmb + frontAmb + frontDif, vec4(1.0))), 1.0);
    frontSpecExport = vec4(vec3(min(frontSpec, vec4(1.0))), 1.0);
 
-   //calcolo delle luci con il modello di Phong - BACK FACE (probabilmente questo si può togliere)
+   // Lighting calculation with Phong's model - BACK FACE
    normal = -1.0f * normal;
    backEmit = floorMatrl.emitCols;
    backGlobAmb = globAmb * floorMatrl.ambRefl;

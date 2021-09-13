@@ -3,13 +3,13 @@
 #define FLOOR 0
 #define WALL 1
 
-// samplers for the textures
+// Samplers for the textures
 uniform sampler2D floorTex;
 uniform sampler2D wallTex;
 
-// material properties
+// Material properties
 in vec4 frontAmbDiffExport, frontSpecExport, backAmbDiffExport, backSpecExport;
-// texture
+// Texture
 in vec2 texCoordsExport;
 
 uniform uint object;
@@ -19,9 +19,9 @@ out vec4 colorsOut;
 
 void main(void)
 {
-   if (object == FLOOR){
+   if (object == FLOOR) {
       texColor = texture(floorTex, texCoordsExport);
-   }else if (object == WALL){
+   } else if (object == WALL) {
       texColor = texture(wallTex, texCoordsExport);
    }
 

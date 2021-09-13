@@ -89,7 +89,7 @@ static const Light light0={
    (vec4){0.0, 0.0, 0.0, 1.0}, 
    (vec4){1.0, 1.0, 1.0, 1.0}, 
    (vec4){1.0, 1.0, 1.0, 1.0},
-   (vec4){0.0, 10.0, 0.0, 0.0} /* Light coords */
+   (vec4){0.0, 100.0, 0.0, 0.0} /* Light coords */
 };
 
 /**
@@ -413,7 +413,8 @@ void init(void)
     objectLoc = glGetUniformLocation(programId, "object");
 
     /**
-     * Passing light characteristics to the shader
+     * Obtain light property uniform locations and set values.
+     * (Passing light characteristics to the shader).
      */
     glUniform4fv(glGetUniformLocation(programId, "light0.ambCols"), 1, &light0.ambCols[0]);
     glUniform4fv(glGetUniformLocation(programId, "light0.difCols"), 1, &light0.difCols[0]);
