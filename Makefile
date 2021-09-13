@@ -50,3 +50,4 @@ $(APP): $(OBJ)
 # Simple command to clean the directory, launched with `make clean`
 clean:
 	rm -f $(ODIR)/*.o $(APP)
+	rm -r $(ODIR)
