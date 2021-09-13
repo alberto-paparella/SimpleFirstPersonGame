@@ -407,4 +407,3 @@ void fillPar(vec3 center_position, float X, float Y, float Z, Vertex parVertices
     fillParCounts(parCounts);
     fillParOffsets(parOffsets);
 }
-

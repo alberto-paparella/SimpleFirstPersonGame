@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 
-
 /**
  * Function to read text file.
  * @param aTextFile Pointer to the file.
@@ -46,5 +45,3 @@ int setShader(char* shaderType, char* shaderFile) {
 
     return shaderId;
 }
-
-
