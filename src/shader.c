@@ -4,7 +4,11 @@
 #include <string.h>
 
 
-// Function to read text file.
+/**
+ * Function to read text file.
+ * @param aTextFile Pointer to the file.
+ * @return Pointer to the array where the content of the file is stored.
+ */
 char* readTextFile(char* aTextFile) {
     FILE* filePointer = fopen(aTextFile, "rb");
     char* content = NULL;
@@ -20,12 +24,17 @@ char* readTextFile(char* aTextFile) {
     return content;
 }
 
-// Function to initialize shaders.
+/**
+ * Function to initialize shaders.
+ * @param shaderType Type of the shader (i.e. vertex, fragment, etc.).
+ * @param shaderFile Pointer to the file containing the shader.
+ * @return The shader internal given id.
+ */
 int setShader(char* shaderType, char* shaderFile) {
     int shaderId;
     char* shader = readTextFile(shaderFile);
 
-    // set shaderId based on the shader type
+    /* Set shaderId based on the shader type. */
     if (strcmp(shaderType, "vertex") == 0) shaderId = glCreateShader(GL_VERTEX_SHADER);
     if (strcmp(shaderType, "tessControl") == 0) shaderId = glCreateShader(GL_TESS_CONTROL_SHADER);
     if (strcmp(shaderType, "tessEvaluation") == 0) shaderId = glCreateShader(GL_TESS_EVALUATION_SHADER);
