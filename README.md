@@ -1,5 +1,4 @@
-# sfpg
-## SIMPLE FIRST PERSON GAME
+# SimpleFirstPersonGame
 
 An implementation of a simple camera used to navigate into a 3D world.
 It is possible to rotate the camera moving the mouse, and to move around
